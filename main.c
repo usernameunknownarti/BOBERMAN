@@ -16,15 +16,15 @@ void init() {
     gluOrtho2D(0.0, WINDOW_WIDTH, WINDOW_HEIGHT, 0.0);
 }
 
-void keyboard(int key, int x, int y) {
+void keyboard(int key, int miceX, int miceY) {
     switch (key) {
         case GLUT_KEY_UP:
-            y+=10;
+            y-=10;
             printf("%d\n",y);
             glutPostRedisplay();
             break;
         case GLUT_KEY_DOWN:
-            y-=10;
+            y+=10;
             printf("%d\n",y);
             glutPostRedisplay();
             break;
