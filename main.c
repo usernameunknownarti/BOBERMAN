@@ -19,40 +19,31 @@ void init() {
 void keyboard(int key, int miceX, int miceY) {
     switch (key) {
         case GLUT_KEY_UP:
-            y-=10;
-            printf("%d\n",y);
+            y -= 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_DOWN:
-            y+=10;
-            printf("%d\n",y);
+            y += 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_RIGHT:
-            x+=10;
-            printf("%d\n",x);
+            x += 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_LEFT:
-            x-=10;
-            printf("%d\n",x);
+            x -= 10;
             glutPostRedisplay();
             break;
         default:
             break;
     }
+    printf("%03.3f, %03.3f\n", x, y);
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0f, 0.0f, 1.0f);
-
-    glBegin(GL_QUADS);
-    glVertex2f(100 + x, 100 + y);
-    glVertex2f(200 + x, 100 + y);
-    glVertex2f(200 + x, 200 + y);
-    glVertex2f(100 + x, 200 + y);
-    glEnd();
+    glRectf(x, y, x + 100, y + 100);
     glFlush();
     glutPostRedisplay();
     glutSwapBuffers();
