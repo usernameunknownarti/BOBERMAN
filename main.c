@@ -6,6 +6,13 @@
 #define WINDOW_WIDTH 640
 #define WINDOW_HEIGHT 640
 
+struct pos {
+    float y;
+    float x;
+};
+
+struct pos character;
+
 float y = 0, x = 0;
 
 void init() {
@@ -19,31 +26,31 @@ void init() {
 void keyboard(int key, int miceX, int miceY) {
     switch (key) {
         case GLUT_KEY_UP:
-            y -= 10;
+            character.y -= 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_DOWN:
-            y += 10;
+            character.y += 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_RIGHT:
-            x += 10;
+            character.x += 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_LEFT:
-            x -= 10;
+            character.x -= 10;
             glutPostRedisplay();
             break;
         default:
             break;
     }
-    printf("%03.3f, %03.3f\n", x, y);
+    printf("%.3f, %.3f\n", character.x, character.y);
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     glColor3f(1.0f, 0.0f, 1.0f);
-    glRectf(x, y, x + 100, y + 100);
+    glRectf(character.x, character.y, character.x + 100, character.y + 100);
     glFlush();
     glutPostRedisplay();
     glutSwapBuffers();
