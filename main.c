@@ -3,8 +3,8 @@
 #include <GL/gl.h>
 #include <GL/glut.h>
 
-#define WINDOW_WIDTH 640
-#define WINDOW_HEIGHT 640
+#define WINDOW_WIDTH 1000
+#define WINDOW_HEIGHT 700
 
 struct pos {
     float y;
@@ -21,6 +21,11 @@ void init() {
     glLoadIdentity();
     // Wartosci do ustawienie, jak na razie nie ma roznicy co sie ustawi, ale moze to spowodowac bledy w przyszlosci.
     gluOrtho2D(0.0, WINDOW_WIDTH, WINDOW_HEIGHT, 0.0);
+}
+
+void map() {
+    int map[7][10];
+    //github
 }
 
 void keyboard(int key, int miceX, int miceY) {
