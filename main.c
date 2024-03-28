@@ -2,6 +2,8 @@
 #include <stdlib.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include <math.h>
+#include <stdbool.h>
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
@@ -10,6 +12,8 @@ struct pos {
     float y;
     float x;
 };
+
+bool want_to_bomb = false;
 
 // Ta tablica to abominacja,
 // będzie trzeba napisać funkcję "draw_map()" która zczytuje wartości z pliku "map1.txt"
@@ -26,9 +30,16 @@ char map_data[7][10] = {
 
 GLuint mapDisplayList;
 
-struct pos character;
+struct pos character, bomb_position;
 
-void keyboard(int key, int miceX, int miceY) {
+void bomb(float x, float y) {
+    printf("%f ", truncf(x / 100));
+    printf("%f ", truncf(y / 100));
+    glColor3f(1.0f, 0.0f, 0.0f);
+    glRectf(truncf(x/100)*100, truncf(y/100)*100, truncf(x/100)*100 + 100, truncf(y/100)*100 + 100);
+}
+
+void specialKeysMovement(int key, int miceX, int miceY) {
     switch (key) {
         case GLUT_KEY_UP:
             character.y -= 10;
@@ -45,6 +56,11 @@ void keyboard(int key, int miceX, int miceY) {
         case GLUT_KEY_LEFT:
             character.x -= 10;
             glutPostRedisplay();
+            break;
+        case GLUT_KEY_F1:
+            want_to_bomb = true;
+            bomb_position.x = character.x;
+            bomb_position.y = character.y;
             break;
         default:
             break;
@@ -76,9 +92,13 @@ void draw_map() {
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
+    if(want_to_bomb) {
+        bomb(bomb_position.x, bomb_position.y);
+    }
     glColor3f(1.0f, 0.0f, 1.0f);
-    glRectf(character.x + 100, character.y + 100, character.x + 200, character.y + 200);
+    glRectf(character.x - 50, character.y - 50, character.x + 50, character.y + 50);
     glCallList(mapDisplayList);
+
     glFlush();
     glutPostRedisplay();
     glutSwapBuffers();
@@ -107,7 +127,7 @@ int main(int argc, char **argv) {
     init();
 
     glutDisplayFunc(display);
-    glutSpecialFunc(keyboard);
+    glutSpecialFunc(specialKeysMovement);
 
     glutMainLoop();
     return 0;
