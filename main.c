@@ -14,18 +14,20 @@ struct pos {
 };
 
 bool want_to_bomb = false;
+bool x_collision = false;
+bool y_collision = false;
 
 // Ta tablica to abominacja,
 // będzie trzeba napisać funkcję "draw_map()" która zczytuje wartości z pliku "map1.txt"
 // w folderze maps i wpisuje je do tej tablicy
 char map_data[7][10] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 1, 1, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+        0, 1, 1, 1, 1, 1, 0, 0, 0, 0,
+        0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
 GLuint mapDisplayList;
@@ -36,25 +38,56 @@ void bomb(float x, float y) {
     printf("%f ", truncf(x / 100));
     printf("%f ", truncf(y / 100));
     glColor3f(1.0f, 0.0f, 0.0f);
-    glRectf(truncf(x/100)*100, truncf(y/100)*100, truncf(x/100)*100 + 100, truncf(y/100)*100 + 100);
+    glRectf(truncf(x / 100) * 100, truncf(y / 100) * 100, truncf(x / 100) * 100 + 100, truncf(y / 100) * 100 + 100);
 }
 
-void specialKeysMovement(int key, int miceX, int miceY) {
+bool hitbox_detection() {
+    float x1, y1;
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 10; j++) {
+            if (map_data[i][j] == 1) {
+                x1 = (float) j * 100.0f;
+                y1 = (float) i * 100.0f;
+                if (character.x + 50.0f <= x1 || character.x - 50.0f >= x1 + 100) {
+                    x_collision = false;
+                } else {
+                    x_collision = true;
+                }
+
+                if (character.y + 50.0f <= y1 || character.y - 50.0f >= y1 + 100) {
+                    y_collision = false;
+                } else {
+                    y_collision = true;
+                }
+
+                if (x_collision && y_collision) {
+                    return true;
+                }
+            }
+        }
+    }
+}
+
+void special_key_movement(int key, int miceX, int miceY) {
     switch (key) {
         case GLUT_KEY_UP:
             character.y -= 10;
+            if (hitbox_detection()) character.y += 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_DOWN:
             character.y += 10;
+            if (hitbox_detection()) character.y -= 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_RIGHT:
             character.x += 10;
+            if (hitbox_detection()) character.x -= 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_LEFT:
             character.x -= 10;
+            if (hitbox_detection()) character.x += 10;
             glutPostRedisplay();
             break;
         case GLUT_KEY_F1:
@@ -92,7 +125,7 @@ void draw_map() {
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
-    if(want_to_bomb) {
+    if (want_to_bomb) {
         bomb(bomb_position.x, bomb_position.y);
     }
     glColor3f(1.0f, 0.0f, 1.0f);
@@ -127,7 +160,7 @@ int main(int argc, char **argv) {
     init();
 
     glutDisplayFunc(display);
-    glutSpecialFunc(specialKeysMovement);
+    glutSpecialFunc(special_key_movement);
 
     glutMainLoop();
     return 0;
