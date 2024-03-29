@@ -14,37 +14,48 @@ struct pos {
 };
 
 bool want_to_bomb = false;
-bool x_collision = false;
-bool y_collision = false;
 
 // Ta tablica to abominacja,
 // będzie trzeba napisać funkcję "draw_map()" która zczytuje wartości z pliku "map1.txt"
 // w folderze maps i wpisuje je do tej tablicy
 char map_data[7][10] = {
-        0, 1, 1, 1, 1, 1, 0, 0, 0, 0,
-        0, 1, 1, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 1, 0, 0, 0, 0, 0, 0,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0,
+        1, 1, 1, 1, 0, 0, 0, 0, 0, 0,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 1, 0, 1, 0, 0, 0, 0,
+        0, 0, 1, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 1, 0, 0,
         0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-        0, 0, 0, 0, 0, 0, 0, 0, 0, 0
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 1
 };
 
 GLuint mapDisplayList;
 
 struct pos character, bomb_position;
 
-void bomb(float x, float y) {
-    printf("%f ", truncf(x / 100));
-    printf("%f ", truncf(y / 100));
+void bomb_callback() {
+    want_to_bomb = false;
+    printf("no bomb bozo \n");
+}
+
+void place_bomb() {
+    printf("bomb x = %f\n", bomb_position.y);
+    printf("bomb y = %f\n", bomb_position.y);
     glColor3f(1.0f, 0.0f, 0.0f);
-    glRectf(truncf(x / 100) * 100, truncf(y / 100) * 100, truncf(x / 100) * 100 + 100, truncf(y / 100) * 100 + 100);
+    glRectf(bomb_position.x * 100, bomb_position.y * 100, bomb_position.x * 100 + 100, bomb_position.y * 100 + 100);
+    // glutTimerFunc wywołuje bomb_callback dużo razy co powoduje że nie jest możliwe postawienie bomby przez naśtepne 5 sekund.
+    glutTimerFunc(5000, bomb_callback, 0);
 }
 
 bool hitbox_detection() {
+    bool x_collision = false;
+    bool y_collision = false;
     float x1, y1;
-    for (int i = 0; i < 7; i++) {
-        for (int j = 0; j < 10; j++) {
+    int char_x, char_y;
+    char_x = (int) truncf(character.x / 100);
+    char_y = (int) truncf(character.y / 100);
+
+    for (int i = char_y - 1; i <= char_y + 1; i++) {
+        for (int j = char_x - 1; j <= char_x + 1; j++) {
             if (map_data[i][j] == 1) {
                 x1 = (float) j * 100.0f;
                 y1 = (float) i * 100.0f;
@@ -53,7 +64,6 @@ bool hitbox_detection() {
                 } else {
                     x_collision = true;
                 }
-
                 if (character.y + 50.0f <= y1 || character.y - 50.0f >= y1 + 100) {
                     y_collision = false;
                 } else {
@@ -66,34 +76,43 @@ bool hitbox_detection() {
             }
         }
     }
+    return false;
 }
 
 void special_key_movement(int key, int miceX, int miceY) {
     switch (key) {
         case GLUT_KEY_UP:
             character.y -= 10;
-            if (hitbox_detection()) character.y += 10;
+            if (hitbox_detection()) {
+                character.y += 10;
+            }
             glutPostRedisplay();
             break;
         case GLUT_KEY_DOWN:
             character.y += 10;
-            if (hitbox_detection()) character.y -= 10;
+            if (hitbox_detection()) {
+                character.y -= 10;
+            }
             glutPostRedisplay();
             break;
         case GLUT_KEY_RIGHT:
             character.x += 10;
-            if (hitbox_detection()) character.x -= 10;
+            if (hitbox_detection()) {
+                character.x -= 10;
+            }
             glutPostRedisplay();
             break;
         case GLUT_KEY_LEFT:
             character.x -= 10;
-            if (hitbox_detection()) character.x += 10;
+            if (hitbox_detection()) {
+                character.x += 10;
+            }
             glutPostRedisplay();
             break;
         case GLUT_KEY_F1:
             want_to_bomb = true;
-            bomb_position.x = character.x;
-            bomb_position.y = character.y;
+            bomb_position.x = truncf(character.x / 100);
+            bomb_position.y = truncf(character.y / 100);
             break;
         default:
             break;
@@ -126,7 +145,7 @@ void draw_map() {
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     if (want_to_bomb) {
-        bomb(bomb_position.x, bomb_position.y);
+        place_bomb();
     }
     glColor3f(1.0f, 0.0f, 1.0f);
     glRectf(character.x - 50, character.y - 50, character.x + 50, character.y + 50);
@@ -151,6 +170,8 @@ void init() {
 }
 
 int main(int argc, char **argv) {
+    character.x = 150.0f;
+    character.y = 150.0f;
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
