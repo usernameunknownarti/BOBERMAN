@@ -1,9 +1,9 @@
 #include <stdio.h>
-#include <stdlib.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
 #include <math.h>
 #include <stdbool.h>
+#include <time.h>
 
 #define WINDOW_WIDTH 1000
 #define WINDOW_HEIGHT 700
@@ -11,9 +11,23 @@
 struct pos {
     float y;
     float x;
-};
+} character;
+
+struct bomb_pos {
+    int y;
+    int x;
+} bomb_position;
 
 bool want_to_bomb = false;
+bool explosion_allowed = false;
+
+enum moving_direction {
+    UP,
+    DOWN,
+    LEFT,
+    RIGHT,
+    NONE
+} moving_direction = NONE;
 
 // Ta tablica to abominacja,
 // będzie trzeba napisać funkcję "draw_map()" która zczytuje wartości z pliku "map1.txt"
@@ -29,21 +43,47 @@ char map_data[7][10] = {
 };
 
 GLuint mapDisplayList;
+unsigned long long bomb_timer;
+bool pressed_F1 = false;
 
-struct pos character, bomb_position;
-
-void bomb_callback() {
-    want_to_bomb = false;
-    printf("no bomb bozo \n");
+void explosion() {
+    // To cudo spawnuje bomby, nie wiem jak to zrobić lepiej ale działa, kiedyś się to poprawi :D
+    glColor3f(1.0f, 0.0f, 0.0f);
+    if (map_data[bomb_position.y - 1][bomb_position.x] == 0) {
+        glRectf((float) bomb_position.x * 100, (float) (bomb_position.y - 1) * 100, (float) bomb_position.x * 100 + 100,
+                (float) (bomb_position.y - 1) * 100 + 100);
+    }
+    if (map_data[bomb_position.y + 1][bomb_position.x] == 0) {
+        glRectf((float) bomb_position.x * 100, (float) (bomb_position.y + 1) * 100, (float) bomb_position.x * 100 + 100,
+                (float) (bomb_position.y + 1) * 100 + 100);
+    }
+    if (map_data[bomb_position.y ][bomb_position.x] == 0) {
+        glRectf((float) bomb_position.x * 100, (float) bomb_position.y * 100, (float) bomb_position.x * 100 + 100,
+                (float) bomb_position.y * 100 + 100);
+    }
+    if (map_data[bomb_position.y][bomb_position.x - 1] == 0) {
+        glRectf((float) (bomb_position.x - 1) * 100, (float) bomb_position.y * 100,
+                (float) (bomb_position.x - 1) * 100 + 100,
+                (float) bomb_position.y * 100 + 100);
+    }
+    if (map_data[bomb_position.y][bomb_position.x + 1] == 0) {
+        glRectf((float) (bomb_position.x + 1) * 100, (float) bomb_position.y * 100,
+                (float) (bomb_position.x + 1) * 100 + 100,
+                (float) bomb_position.y * 100 + 100);
+    }
 }
 
 void place_bomb() {
-    printf("bomb x = %f\n", bomb_position.y);
-    printf("bomb y = %f\n", bomb_position.y);
-    glColor3f(1.0f, 0.0f, 0.0f);
-    glRectf(bomb_position.x * 100, bomb_position.y * 100, bomb_position.x * 100 + 100, bomb_position.y * 100 + 100);
-    // glutTimerFunc wywołuje bomb_callback dużo razy co powoduje że nie jest możliwe postawienie bomby przez naśtepne 5 sekund.
-    glutTimerFunc(5000, bomb_callback, 0);
+    glColor3f(0.5f, 0.5f, 0.5f);
+    glRectf(bomb_position.x * 100, bomb_position.y * 100, bomb_position.x * 100 + 100,
+            bomb_position.y * 100 + 100);
+    printf("%llu\n", time(NULL));
+    if (time(NULL) == bomb_timer) {
+        want_to_bomb = false;
+        explosion_allowed = true;
+        printf("despawned bomb\n");
+        printf("%llu", bomb_timer);
+    }
 }
 
 bool hitbox_detection() {
@@ -79,45 +119,75 @@ bool hitbox_detection() {
     return false;
 }
 
-void special_key_movement(int key, int miceX, int miceY) {
+void key_start_movement(int key, int miceX, int miceY) {
     switch (key) {
         case GLUT_KEY_UP:
-            character.y -= 10;
-            if (hitbox_detection()) {
-                character.y += 10;
-            }
-            glutPostRedisplay();
+            moving_direction = UP;
+            printf("Going up\n");
             break;
         case GLUT_KEY_DOWN:
-            character.y += 10;
-            if (hitbox_detection()) {
-                character.y -= 10;
-            }
-            glutPostRedisplay();
+            moving_direction = DOWN;
+            printf("Going down\n");
             break;
         case GLUT_KEY_RIGHT:
-            character.x += 10;
-            if (hitbox_detection()) {
-                character.x -= 10;
-            }
-            glutPostRedisplay();
+            moving_direction = RIGHT;
+            printf("Going right\n");
             break;
         case GLUT_KEY_LEFT:
-            character.x -= 10;
-            if (hitbox_detection()) {
-                character.x += 10;
-            }
-            glutPostRedisplay();
+            moving_direction = LEFT;
+            printf("Going left\n");
             break;
         case GLUT_KEY_F1:
-            want_to_bomb = true;
-            bomb_position.x = truncf(character.x / 100);
-            bomb_position.y = truncf(character.y / 100);
+            if (pressed_F1 == false) {
+                bomb_position.x = (int) truncf(character.x / 100);
+                bomb_position.y = (int) truncf(character.y / 100);
+                want_to_bomb = true;
+                bomb_timer = time(NULL) + 6;
+            }
+            pressed_F1 = true;
             break;
         default:
             break;
     }
-    printf("%.3f, %.3f\n", character.x, character.y);
+}
+
+void key_stop_movement(int key, int miceX, int miceY) {
+    if (key != GLUT_KEY_F1) {
+        moving_direction = NONE;
+    }
+    printf("you stopped moving\n");
+}
+
+void update_movement() {
+    switch (moving_direction) {
+        case UP:
+            character.y -= 5;
+            if (hitbox_detection()) {
+                character.y += 5;
+            }
+            break;
+        case DOWN:
+            character.y += 5;
+            if (hitbox_detection()) {
+                character.y -= 5;
+            }
+            break;
+        case LEFT:
+            character.x -= 5;
+            if (hitbox_detection()) {
+                character.x += 5;
+            }
+            break;
+        case RIGHT:
+            character.x += 5;
+            if (hitbox_detection()) {
+                character.x -= 5;
+            }
+            break;
+        default:
+            break;
+    }
+    glutPostRedisplay();
 }
 
 void entity_wall(float x, float y) {
@@ -139,16 +209,26 @@ void draw_map() {
         sumy += 100.0f;
         printf("y = %f\n", sumy);
     }
-    sumy = 0.0f;
 }
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
     if (want_to_bomb) {
         place_bomb();
+    } else if(explosion_allowed == true) {
+        if(time(NULL) < bomb_timer+1) {
+            explosion();
+        } else {
+            printf("you twat");
+            pressed_F1 = false;
+            bomb_timer = 0;
+            explosion_allowed = false;
+        }
     }
     glColor3f(1.0f, 0.0f, 1.0f);
     glRectf(character.x - 50, character.y - 50, character.x + 50, character.y + 50);
+    update_movement();
+
     glCallList(mapDisplayList);
 
     glFlush();
@@ -181,7 +261,8 @@ int main(int argc, char **argv) {
     init();
 
     glutDisplayFunc(display);
-    glutSpecialFunc(special_key_movement);
+    glutSpecialFunc(key_start_movement);
+    glutSpecialUpFunc(key_stop_movement);
 
     glutMainLoop();
     return 0;
