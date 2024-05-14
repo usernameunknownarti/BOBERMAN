@@ -9,33 +9,39 @@
 #define WINDOW_HEIGHT 700
 
 struct character_info {
-    unsigned long long bomb_timer;
     float y;
     float x;
-    float bomb_y;
-    float bomb_x;
-    int aftermath_y;
-    int aftermath_x;
     bool moving_up;
     bool moving_down;
     bool moving_left;
     bool moving_right;
     bool want_to_bomb;
-    bool pressed_explosion_key;
-    bool explosion_allowed;
 } character1, character2;
+
+struct queue_node {
+    unsigned long long bomb_timer;
+    float bomb_y;
+    float bomb_x;
+    int aftermath_y;
+    int aftermath_x;
+    struct queue_node *next;
+};
+
+struct queue_pointers {
+    struct queue_node *head, *tail;
+} queue = {NULL, NULL};
 
 // Ta tablica to abominacja,
 // będzie trzeba napisać funkcję która zczytuje wartości z pliku "map1.txt"
 // w folderze maps i wpisuje je do tej tablicy
 char map_data[7][11] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 2, 0, 2, 0, 2, 0,1,
-        1, 0, 1, 2, 1, 2, 1, 2, 1, 2,1,
-        1, 0, 2, 0, 2, 0, 2, 0, 2, 0,1,
-        1, 2, 1, 2, 1, 2, 1, 2, 1, 0,1,
-        1, 0, 2, 0, 2, 0, 2, 0, 0, 0,1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1,1
+        1, 0, 0, 0, 2, 0, 2, 0, 2, 0, 1,
+        1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1,
+        1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1,
+        1, 2, 1, 2, 1, 2, 1, 2, 1, 0, 1,
+        1, 0, 2, 0, 2, 0, 2, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
 GLuint mapDisplayList;
@@ -45,45 +51,79 @@ void entity_square(float x, float y, float r, float g, float b) {
     glRectf(x, y, x + 100, y + 100);
 }
 
-void explosion(struct character_info *character) {
+bool enqueue(struct queue_pointers *queue_bomb, float bomb_x, float bomb_y, int aftermath_x, int aftermath_y,
+             unsigned long long bomb_timer) {
+    struct queue_node *new_node = (struct queue_node *) malloc(sizeof(struct queue_node));
+    if (new_node != NULL) {
+        new_node->bomb_x = bomb_x;
+        new_node->bomb_y = bomb_y;
+        new_node->aftermath_x = aftermath_x;
+        new_node->aftermath_y = aftermath_y;
+        new_node->bomb_timer = bomb_timer;
+        new_node->next = NULL;
+        if (queue_bomb->head == NULL) {
+            queue_bomb->head = queue_bomb->tail = new_node;
+        } else {
+            queue_bomb->tail->next = new_node;
+            queue_bomb->tail = new_node;
+        }
+        return true;
+    }
+    return false;
+}
+
+bool dequeue(struct queue_pointers *queue_bomb) {
+    if (queue_bomb->head != NULL) {
+        struct queue_node *tmp = queue_bomb->head->next;
+        free(queue_bomb->head);
+        queue_bomb->head = tmp;
+        if (tmp == NULL) {
+            queue_bomb->tail = NULL;
+        }
+        return true;
+    }
+    return false;
+}
+
+void explosion(struct queue_node *queue_bomb) {
     float j = 0;
-    entity_square((character->bomb_x) * 100, (character->bomb_y) * 100, 1.0f, 0.0f, 0.0f);
-    map_data[character->aftermath_y][character->aftermath_x] = 3;
+    entity_square((queue_bomb->bomb_x) * 100, (queue_bomb->bomb_y) * 100, 1.0f, 0.0f, 0.0f);
+    map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x] = 3;
     for (int i = 1; i < 2; i++) {
         j = j + 1;
-        entity_square((character->bomb_x + j) * 100, character->bomb_y * 100, 1.0f, 0.0f, 0.0f);
-        if (map_data[character->aftermath_y][character->aftermath_x + i] != 1) {
-            map_data[character->aftermath_y][character->aftermath_x + i] = 3;
+        entity_square((queue_bomb->bomb_x + j) * 100, queue_bomb->bomb_y * 100, 1.0f, 0.0f, 0.0f);
+        if (map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x + i] != 1) {
+            map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x + i] = 3;
         }
-        entity_square((character->bomb_x - j) * 100, character->bomb_y * 100, 1.0f, 0.0f, 0.0f);
-        if (map_data[character->aftermath_y][character->aftermath_x - i] != 1) {
-            map_data[character->aftermath_y][character->aftermath_x - i] = 3;
+        entity_square((queue_bomb->bomb_x - j) * 100, queue_bomb->bomb_y * 100, 1.0f, 0.0f, 0.0f);
+        if (map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x - i] != 1) {
+            map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x - i] = 3;
         }
-        entity_square(character->bomb_x * 100, (character->bomb_y + j) * 100, 1.0f, 0.0f, 0.0f);
-        if (map_data[character->aftermath_y + i][character->aftermath_x] != 1) {
-            map_data[character->aftermath_y + i][character->aftermath_x] = 3;
+        entity_square(queue_bomb->bomb_x * 100, (queue_bomb->bomb_y + j) * 100, 1.0f, 0.0f, 0.0f);
+        if (map_data[queue_bomb->aftermath_y + i][queue_bomb->aftermath_x] != 1) {
+            map_data[queue_bomb->aftermath_y + i][queue_bomb->aftermath_x] = 3;
         }
-        entity_square(character->bomb_x * 100, (character->bomb_y - j) * 100, 1.0f, 0.0f, 0.0f);
-        if (map_data[character->aftermath_y - i][character->aftermath_x] != 1) {
-            map_data[character->aftermath_y - i][character->aftermath_x] = 3;
+        entity_square(queue_bomb->bomb_x * 100, (queue_bomb->bomb_y - j) * 100, 1.0f, 0.0f, 0.0f);
+        if (map_data[queue_bomb->aftermath_y - i][queue_bomb->aftermath_x] != 1) {
+            map_data[queue_bomb->aftermath_y - i][queue_bomb->aftermath_x] = 3;
         }
     }
 }
 
-void bomb_cleanup(struct character_info *character) {
-    map_data[character->aftermath_y][character->aftermath_x] = 0;
+void bomb_cleanup(struct queue_node *queue_bomb) {
+    map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x] = 0;
     for (int i = 1; i < 2; i++) {
-        if (map_data[character->aftermath_y][character->aftermath_x + i] != 1) {
-            map_data[character->aftermath_y][character->aftermath_x + i] = 0;
+        if (map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x + i] != 1) {
+            map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x + i] = 0;
         }
-        if (map_data[character->aftermath_y][character->aftermath_x - i] != 1) {
-            map_data[character->aftermath_y][character->aftermath_x - i] = 0;
+        if (map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x - i] != 1) {
+            map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x - i] = 0;
         }
-        if (map_data[character->aftermath_y + i][character->aftermath_x] != 1) {
-            map_data[character->aftermath_y + i][character->aftermath_x] = 0;
+        if (map_data[queue_bomb->aftermath_y + i][queue_bomb->aftermath_x] != 1) {
+            map_data[queue_bomb->aftermath_y + i][queue_bomb->aftermath_x] = 0;
         }
-        if (map_data[character->aftermath_y - i][character->aftermath_x] != 1) {
-            map_data[character->aftermath_y - i][character->aftermath_x] = 0;
+        if (map_data[queue_bomb->aftermath_y - i][queue_bomb->aftermath_x] != 1) {
+            map_data[queue_bomb->aftermath_y - i][queue_bomb->aftermath_x] = 0;
         }
     }
 }
@@ -127,14 +167,6 @@ bool hitbox_detection(struct character_info *character) {
         }
     }
     return false;
-}
-
-void place_bomb(struct character_info *character) {
-    entity_square(character->bomb_x * 100, character->bomb_y * 100, 0.5f, 0.5f, 0.5f);
-    if (time(NULL) == character->bomb_timer) {
-        character->want_to_bomb = false;
-        character->explosion_allowed = true;
-    }
 }
 
 void key_start_movement_character1(int key, int miceX, int miceY) {
@@ -202,26 +234,12 @@ void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
             printf("Going left\n");
             break;
         case 'z':
-            if (character2.pressed_explosion_key == false) {
-                character2.bomb_x = truncf(character2.x / 100);
-                character2.bomb_y = truncf(character2.y / 100);
-                character2.aftermath_x = (int) truncf(character2.x / 100);
-                character2.aftermath_y = (int) truncf(character2.y / 100);
-                character2.want_to_bomb = true;
-                character2.bomb_timer = time(NULL) + 2;
-                character2.pressed_explosion_key = true;
-            }
+            enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100), (int) truncf(character2.x / 100),
+                    (int) truncf(character2.y / 100), time(NULL));
             break;
         case '0':
-            if (character1.pressed_explosion_key == false) {
-                character1.bomb_x = truncf(character1.x / 100);
-                character1.bomb_y = truncf(character1.y / 100);
-                character1.aftermath_x = (int) truncf(character1.x / 100);
-                character1.aftermath_y = (int) truncf(character1.y / 100);
-                character1.want_to_bomb = true;
-                character1.bomb_timer = time(NULL) + 2;
-                character1.pressed_explosion_key = true;
-            }
+            enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100), (int) truncf(character1.x / 100),
+                    (int) truncf(character1.y / 100), time(NULL));
             break;
         default:
             break;
@@ -281,8 +299,8 @@ void update_movement(struct character_info *character) {
 
 void draw_map() {
     float sumx = 0.0f, sumy = 0.0f;
-    for (int i = 0; i < WINDOW_HEIGHT/100; i++) {
-        for (int j = 0; j < WINDOW_WIDTH/100; j++) {
+    for (int i = 0; i < WINDOW_HEIGHT / 100; i++) {
+        for (int j = 0; j < WINDOW_WIDTH / 100; j++) {
             if (map_data[i][j] == 1) {
                 entity_square(sumx, sumy, 0.0f, 0.0f, 1.0f);
             }
@@ -307,25 +325,29 @@ void draw_crates() {
     }
 }
 
-void bombing(struct character_info *character) {
-    if (character->want_to_bomb) {
-        place_bomb(character);
-    } else if (character->explosion_allowed == true) {
-        if (time(NULL) < character->bomb_timer + 1) {
-            explosion(character);
-        } else {
-            character->pressed_explosion_key = false;
-            character->bomb_timer = 0;
-            character->explosion_allowed = false;
-            bomb_cleanup(character);
+void bombing(struct queue_pointers *queue_bomb) {
+    struct queue_node *current = queue_bomb->head;
+    bool exploded = false;
+    while (current != NULL) {
+        if (current->bomb_timer + 1 >= time(NULL)) {
+            entity_square(current->bomb_x * 100, current->bomb_y * 100, 0.5f, 0.5f, 0.5f);
         }
+        if (current->bomb_timer + 2 >= time(NULL) && current->bomb_timer + 1 < time(NULL)) {
+            explosion(current);
+        }
+        if (current->bomb_timer + 2 < time(NULL)) {
+            bomb_cleanup(current);
+            dequeue(queue_bomb);
+        }
+        current = current->next;
     }
 }
 
+
 void display() {
     glClear(GL_COLOR_BUFFER_BIT);
-    bombing(&character1);
-    bombing(&character2);
+    bombing(&queue);
+    bombing(&queue);
 
     draw_crates();
     entity_square(character1.x - 50, character1.y - 50, 1.0f, 0.0f, 1.0f);
