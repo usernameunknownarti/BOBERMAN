@@ -5,6 +5,10 @@
 #include <stdbool.h>
 #include <time.h>
 
+#define STB_IMAGE_IMPLEMENTATION
+
+#include "libs/stb_image.h"
+
 #define WINDOW_WIDTH 1100
 #define WINDOW_HEIGHT 700
 
@@ -15,7 +19,6 @@ struct character_info {
     bool moving_down;
     bool moving_left;
     bool moving_right;
-    bool want_to_bomb;
 } character1, character2;
 
 struct queue_node {
@@ -27,6 +30,12 @@ struct queue_node {
     struct queue_node *next;
 };
 
+enum Menus {
+    GAME,
+    OPTIONS,
+    MAIN_MANU
+} Menus = MAIN_MANU;
+
 struct queue_pointers {
     struct queue_node *head, *tail;
 } queue = {NULL, NULL};
@@ -36,19 +45,32 @@ struct queue_pointers {
 // w folderze maps i wpisuje je do tej tablicy
 char map_data[7][11] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 2, 0, 2, 0, 2, 0, 1,
-        1, 0, 1, 2, 1, 2, 1, 2, 1, 2, 1,
-        1, 0, 2, 0, 2, 0, 2, 0, 2, 0, 1,
-        1, 2, 1, 2, 1, 2, 1, 2, 1, 0, 1,
-        1, 0, 2, 0, 2, 0, 2, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
 GLuint mapDisplayList;
+GLuint texture;
 
 void entity_square(float x, float y, float r, float g, float b) {
     glColor3f(r, g, b);
     glRectf(x, y, x + 100, y + 100);
+}
+
+void entity_button(float x, float y) {
+    glBindTexture(GL_TEXTURE_2D, texture);
+    glColor3f( 1.0f, 1.0f, 1.0f);
+    glBegin(GL_QUADS);
+        glTexCoord2f(0.0f, 0.0f); glVertex2f(x - 250, y - 50);
+        glTexCoord2f(1.0f, 0.0f); glVertex2f(x + 250, y - 50);
+        glTexCoord2f(1.0f, 1.0f); glVertex2f(x + 250, y + 50);
+        glTexCoord2f(0.0f, 1.0f); glVertex2f(x - 250, y + 50);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 bool enqueue(struct queue_pointers *queue_bomb, float bomb_x, float bomb_y, int aftermath_x, int aftermath_y,
@@ -133,8 +155,32 @@ void death_detection(struct character_info *character) {
     int character_y = (int) truncf(character->y / 100);
     if (map_data[character_y][character_x] == 3) {
         printf("You died.\n");
-        //exit(0);
+        Menus = MAIN_MANU;
+        character1.x = 950.0f;
+        character1.y = 550.0f;
+        character2.x = 150.0f;
+        character2.y = 150.0f;
     }
+}
+
+bool player_hitbox_detection(struct character_info *characterr1, struct character_info *characterr2) {
+    bool x_collision = false;
+    bool y_collision = false;
+    if (characterr1->x + 50.0f <= characterr2->x - 50.0f || characterr1->x - 50.0f >= characterr2->x + 50.0f) {
+        x_collision = false;
+    } else {
+        x_collision = true;
+    }
+    if (characterr1->y + 50.0f <= characterr2->y - 50.0f || characterr1->y - 50.0f >= characterr2->y + 50.0f) {
+        y_collision = false;
+    } else {
+        y_collision = true;
+    }
+
+    if (x_collision && y_collision) {
+        return true;
+    }
+    return false;
 }
 
 bool hitbox_detection(struct character_info *character) {
@@ -269,29 +315,57 @@ void key_stop_movement_character2(unsigned char key, int miceX, int miceY) {
     }
 }
 
-void update_movement(struct character_info *character) {
-    if (character->moving_up == true) {
-        character->y -= 5;
-        if (hitbox_detection(character)) {
-            character->y += 5;
+void mouse(int button, int state, int miceX, int miceY) {
+    if (button == GLUT_LEFT_BUTTON && Menus == MAIN_MANU && state == GLUT_DOWN) {
+        if (miceX <= 800 && miceX >= 300 && miceY <= 400 && miceY >= 300) {
+            Menus = GAME;
+        }
+        if (miceX <= 800 && miceX >= 300 && miceY <= 525 && miceY >= 425) {
+            Menus = OPTIONS;
+        }
+        if (miceX <= 800 && miceX >= 300 && miceY <= 650 && miceY >= 550) {
+            exit(0);
         }
     }
-    if (character->moving_down == true) {
-        character->y += 5;
-        if (hitbox_detection(character)) {
-            character->y -= 5;
+    if (button == GLUT_LEFT_BUTTON && Menus == OPTIONS && state == GLUT_DOWN) {
+        if (miceX <= 800 && miceX >= 300 && miceY <= 200 && miceY >= 100) {
+            printf("map1\n");
+        }
+        if (miceX <= 800 && miceX >= 300 && miceY <= 325 && miceY >= 225) {
+            printf("map2\n");
+        }
+        if (miceX <= 800 && miceX >= 300 && miceY <= 450 && miceY >= 350) {
+            printf("map3\n");
+        }
+        if (miceX <= 800 && miceX >= 300 && miceY <= 600 && miceY >= 500) {
+            Menus = MAIN_MANU;
         }
     }
-    if (character->moving_right == true) {
-        character->x += 5;
-        if (hitbox_detection(character)) {
-            character->x -= 5;
+}
+
+void update_movement(struct character_info *characterr1, struct character_info *characterr2) {
+    if (characterr1->moving_up == true) {
+        characterr1->y -= 5;
+        if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
+            characterr1->y += 5;
         }
     }
-    if (character->moving_left == true) {
-        character->x -= 5;
-        if (hitbox_detection(character)) {
-            character->x += 5;
+    if (characterr1->moving_down == true) {
+        characterr1->y += 5;
+        if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
+            characterr1->y -= 5;
+        }
+    }
+    if (characterr1->moving_right == true) {
+        characterr1->x += 5;
+        if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
+            characterr1->x -= 5;
+        }
+    }
+    if (characterr1->moving_left == true) {
+        characterr1->x -= 5;
+        if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
+            characterr1->x += 5;
         }
     }
     glutPostRedisplay();
@@ -327,7 +401,6 @@ void draw_crates() {
 
 void bombing(struct queue_pointers *queue_bomb) {
     struct queue_node *current = queue_bomb->head;
-    bool exploded = false;
     while (current != NULL) {
         if (current->bomb_timer + 1 >= time(NULL)) {
             entity_square(current->bomb_x * 100, current->bomb_y * 100, 0.5f, 0.5f, 0.5f);
@@ -343,25 +416,78 @@ void bombing(struct queue_pointers *queue_bomb) {
     }
 }
 
-
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT);
+void game() {
     bombing(&queue);
     bombing(&queue);
-
+    player_hitbox_detection(&character1, &character2);
     draw_crates();
+
     entity_square(character1.x - 50, character1.y - 50, 1.0f, 0.0f, 1.0f);
     entity_square(character2.x - 50, character2.y - 50, 1.0f, 0.0f, 1.0f);
-    update_movement(&character1);
-    update_movement(&character2);
+    update_movement(&character1, &character2);
+    update_movement(&character2, &character1);
 
     death_detection(&character1);
     death_detection(&character2);
     glCallList(mapDisplayList);
+}
 
+void main_menu() {
+    entity_button(550, 350);
+    entity_button(550, 475);
+    entity_button(550, 600);
+}
+
+void options() {
+    entity_button(550, 150);
+    entity_button(550, 275);
+    entity_button(550, 400);
+    entity_button(550, 550);
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    switch (Menus) {
+        case GAME:
+            game();
+            break;
+        case OPTIONS:
+            options();
+            break;
+        case MAIN_MANU:
+            main_menu();
+            break;
+        default:
+            break;
+    }
     glFlush();
     glutPostRedisplay();
     glutSwapBuffers();
+}
+
+GLuint loadTexture(const char *filename) {
+    int width, height, channels;
+    unsigned char *pixel_data = stbi_load(filename, &width, &height, &channels, 0);
+    if (!pixel_data) {
+        printf("nie ma tekstury\n");
+        return 0;
+    }
+
+    GLuint texture_gluint;
+    glGenTextures(1, &texture_gluint);
+    glBindTexture(GL_TEXTURE_2D, texture_gluint);
+
+    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixel_data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(pixel_data);
+    return texture_gluint;
 }
 
 void init() {
@@ -370,6 +496,8 @@ void init() {
     glLoadIdentity();
     // Wartosci do ustawienie, jak na razie nie ma roznicy co sie ustawi, ale moze to spowodowac bledy w przyszlosci.
     gluOrtho2D(0.0, WINDOW_WIDTH, WINDOW_HEIGHT, 0.0);
+    glEnable(GL_TEXTURE_2D);
+    glDisable(GL_DEPTH_TEST);
 
     mapDisplayList = glGenLists(1);
     glNewList(mapDisplayList, GL_COMPILE);
@@ -384,14 +512,16 @@ int main(int argc, char **argv) {
     character2.y = 150.0f;
 
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     glutInitWindowPosition(0, 0);
     glutCreateWindow("Boberman");
 
     init();
+    texture = loadTexture("graphics/button.png");
 
     glutDisplayFunc(display);
+    glutMouseFunc(mouse);
     glutSpecialFunc(key_start_movement_character1);
     glutSpecialUpFunc(key_stop_movement_character1);
 
