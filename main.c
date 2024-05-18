@@ -53,18 +53,41 @@ char map_data[7][11] = {
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1,
+        1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+};
+
+char original_map_data[7][11] = {
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1,
+        1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1,
         1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
         1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
 };
 
 GLuint mapDisplayList;
-GLuint texture;
+GLuint texture[13];
 
-void entity_square(float x, float y, float r, float g, float b) {
-    glColor3f(r, g, b);
-    glRectf(x, y, x + 100, y + 100);
+void entity_square(float x, float y, GLuint texture_gluint) {
+    glBindTexture(GL_TEXTURE_2D, texture_gluint);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(x, y);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(x + 100, y);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(x + 100, y + 100);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(x, y + 100);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+//    glColor3f(r, g, b);
+//    glRectf(x, y, x + 100, y + 100);
 }
 
 void entity_rectangle_alpha(float r, float g, float b, float alpha, float x, float y) {
@@ -95,6 +118,14 @@ void win_check(struct character_info *character, char *color) {
         character->score = 0;
         character->score = 0;
         Menus = MAIN_MANU;
+    }
+}
+
+void restart_map_data() {
+    for(int i = 0; i < 7; i++) {
+        for(int j = 0; j < 11; j++) {
+            map_data[i][j] = original_map_data[i][j];
+        }
     }
 }
 
@@ -131,8 +162,8 @@ void view_scores() {
     entity_score(600.0f, 0.0f, 0.0f, 1.0f, &character1);
 }
 
-void entity_button(float x, float y) {
-    glBindTexture(GL_TEXTURE_2D, texture);
+void entity_button(float x, float y, GLuint texture_gluint) {
+    glBindTexture(GL_TEXTURE_2D, texture_gluint);
     glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
@@ -183,23 +214,23 @@ bool dequeue(struct queue_pointers *queue_bomb) {
 
 void explosion(struct queue_node *queue_bomb) {
     float j = 0;
-    entity_square((queue_bomb->bomb_x) * 100, (queue_bomb->bomb_y) * 100, 1.0f, 0.0f, 0.0f);
+    entity_square((queue_bomb->bomb_x) * 100, (queue_bomb->bomb_y) * 100, texture[11]);
     map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x] = 3;
     for (int i = 1; i < 2; i++) {
         j = j + 1;
-        entity_square((queue_bomb->bomb_x + j) * 100, queue_bomb->bomb_y * 100, 1.0f, 0.0f, 0.0f);
+        entity_square((queue_bomb->bomb_x + j) * 100, queue_bomb->bomb_y * 100, texture[11]);
         if (map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x + i] != 1) {
             map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x + i] = 3;
         }
-        entity_square((queue_bomb->bomb_x - j) * 100, queue_bomb->bomb_y * 100, 1.0f, 0.0f, 0.0f);
+        entity_square((queue_bomb->bomb_x - j) * 100, queue_bomb->bomb_y * 100, texture[11]);
         if (map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x - i] != 1) {
             map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x - i] = 3;
         }
-        entity_square(queue_bomb->bomb_x * 100, (queue_bomb->bomb_y + j) * 100, 1.0f, 0.0f, 0.0f);
+        entity_square(queue_bomb->bomb_x * 100, (queue_bomb->bomb_y + j) * 100, texture[11]);
         if (map_data[queue_bomb->aftermath_y + i][queue_bomb->aftermath_x] != 1) {
             map_data[queue_bomb->aftermath_y + i][queue_bomb->aftermath_x] = 3;
         }
-        entity_square(queue_bomb->bomb_x * 100, (queue_bomb->bomb_y - j) * 100, 1.0f, 0.0f, 0.0f);
+        entity_square(queue_bomb->bomb_x * 100, (queue_bomb->bomb_y - j) * 100, texture[11]);
         if (map_data[queue_bomb->aftermath_y - i][queue_bomb->aftermath_x] != 1) {
             map_data[queue_bomb->aftermath_y - i][queue_bomb->aftermath_x] = 3;
         }
@@ -450,7 +481,7 @@ void draw_map() {
     for (int i = 0; i < WINDOW_HEIGHT / 100; i++) {
         for (int j = 0; j < WINDOW_WIDTH / 100; j++) {
             if (map_data[i][j] == 1) {
-                entity_square(sumx, sumy, 0.0f, 0.0f, 1.0f);
+                entity_square(sumx, sumy, texture[12]);
             }
             sumx += 100.0f;
         }
@@ -464,7 +495,7 @@ void draw_crates() {
     for (int i = 0; i < 7; i++) {
         for (int j = 0; j < 10; j++) {
             if (map_data[i][j] == 2) {
-                entity_square(sumx, sumy, 1.0f, 1.0f, 0.0f);
+                entity_square(sumx, sumy, texture[10]);
             }
             sumx += 100.0f;
         }
@@ -477,7 +508,7 @@ void bombing(struct queue_pointers *queue_bomb) {
     struct queue_node *current = queue_bomb->head;
     while (current != NULL) {
         if (current->bomb_timer + 1 >= time(NULL)) {
-            entity_square(current->bomb_x * 100, current->bomb_y * 100, 0.5f, 0.5f, 0.5f);
+            entity_square(current->bomb_x * 100, current->bomb_y * 100, texture[9]);
         }
         if (current->bomb_timer + 2 >= time(NULL) && current->bomb_timer + 1 < time(NULL)) {
             explosion(current);
@@ -496,8 +527,8 @@ void game() {
     player_hitbox_detection(&character1, &character2);
     draw_crates();
 
-    entity_square(character1.x - 50, character1.y - 50, 0.0f, 0.0f, 0.5f);
-    entity_square(character2.x - 50, character2.y - 50, 0.5f, 0.0f, 0.0f);
+    entity_square(character1.x - 50, character1.y - 50, texture[7]);
+    entity_square(character2.x - 50, character2.y - 50, texture[8]);
     update_movement(&character1, &character2);
     update_movement(&character2, &character1);
 
@@ -516,21 +547,22 @@ void game() {
         }
         if (time(NULL) > score_timer) {
             restart_game();
+            restart_map_data();
         }
     }
 }
 
 void main_menu() {
-    entity_button(550, 350);
-    entity_button(550, 475);
-    entity_button(550, 600);
+    entity_button(550, 350, texture[0]);
+    entity_button(550, 475, texture[1]);
+    entity_button(550, 600, texture[2]);
 }
 
 void options() {
-    entity_button(550, 150);
-    entity_button(550, 275);
-    entity_button(550, 400);
-    entity_button(550, 550);
+    entity_button(550, 150, texture[3]);
+    entity_button(550, 275, texture[4]);
+    entity_button(550, 400, texture[5]);
+    entity_button(550, 550, texture[6]);
 }
 
 void display() {
@@ -578,7 +610,7 @@ GLuint loadTexture(const char *filename) {
 }
 
 void init() {
-    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    glClearColor(0.294f, 0.388f, 0.165f, 0.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     // Wartosci do ustawienie, jak na razie nie ma roznicy co sie ustawi, ale moze to spowodowac bledy w przyszlosci.
@@ -604,8 +636,21 @@ int main(int argc, char **argv) {
     glutInitWindowPosition(0, 0);
     glutCreateWindow("Boberman");
 
+    texture[0] = loadTexture("graphics/button_start_game.png");
+    texture[1] = loadTexture("graphics/button_options.png");
+    texture[2] = loadTexture("graphics/button_exit.png");
+    texture[3] = loadTexture("graphics/button_map1.png");
+    texture[4] = loadTexture("graphics/button_map2.png");
+    texture[5] = loadTexture("graphics/button_map3.png");
+    texture[6] = loadTexture("graphics/button_back.png");
+
+    texture[7] = loadTexture("graphics/block_beaver_blue.png");
+    texture[8] = loadTexture("graphics/block_beaver_red.png");
+    texture[9] = loadTexture("graphics/block_bomb.png");
+    texture[10] = loadTexture("graphics/block_crate.png");
+    texture[11] = loadTexture("graphics/block_fire.png");
+    texture[12] = loadTexture("graphics/block_wall.png");
     init();
-    texture = loadTexture("graphics/button.png");
 
     glutDisplayFunc(display);
     glutMouseFunc(mouse);
