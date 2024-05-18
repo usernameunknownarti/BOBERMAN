@@ -15,10 +15,13 @@
 struct character_info {
     float y;
     float x;
+    int score;
     bool moving_up;
     bool moving_down;
     bool moving_left;
     bool moving_right;
+    bool died;
+    bool invincible;
 } character1, character2;
 
 struct queue_node {
@@ -35,6 +38,9 @@ enum Menus {
     OPTIONS,
     MAIN_MANU
 } Menus = MAIN_MANU;
+
+bool proceed = false;
+unsigned long long score_timer;
 
 struct queue_pointers {
     struct queue_node *head, *tail;
@@ -61,14 +67,82 @@ void entity_square(float x, float y, float r, float g, float b) {
     glRectf(x, y, x + 100, y + 100);
 }
 
+void entity_rectangle_alpha(float r, float g, float b, float alpha, float x, float y) {
+    glColor4f(r, g, b, alpha);
+    glRectf(x, 0, x + 300, 1100);
+}
+
+void entity_score(float x, float r, float g, float b, struct character_info *character) {
+    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
+    glPushMatrix();
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
+    entity_rectangle_alpha(r, g, b, 0.5f, x, 0);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTranslatef(x + 70, 450.0f, 0.0f);
+    glScalef(2.0f, -2.0f, 2.0f);
+    glutStrokeCharacter(GLUT_STROKE_ROMAN, character->score + '0');
+    glDisable(GL_BLEND);
+
+    glPopMatrix();
+    glPopAttrib();
+}
+
+void win_check(struct character_info *character, char *color) {
+    if (character->score == 5) {
+        printf("%s wins!\n", color);
+        character->score = 0;
+        character->score = 0;
+        Menus = MAIN_MANU;
+    }
+}
+
+void restart_game() {
+    character1.died = false;
+    character2.died = false;
+    if (proceed) {
+        character1.x = 950.0f;
+        character1.y = 550.0f;
+        character2.x = 150.0f;
+        character2.y = 150.0f;
+        proceed = false;
+    }
+}
+
+void set_score() {
+    if (character1.died) {
+        character2.score++;
+        proceed = true;
+    }
+    if (character2.died) {
+        character1.score++;
+        proceed = true;
+    }
+    if (character2.died && character1.died) {
+        character1.score--;
+        character2.score--;
+        proceed = true;
+    }
+}
+
+void view_scores() {
+    entity_score(200.0f, 1.0f, 0.0f, 0.0f, &character2);
+    entity_score(600.0f, 0.0f, 0.0f, 1.0f, &character1);
+}
+
 void entity_button(float x, float y) {
     glBindTexture(GL_TEXTURE_2D, texture);
-    glColor3f( 1.0f, 1.0f, 1.0f);
+    glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_QUADS);
-        glTexCoord2f(0.0f, 0.0f); glVertex2f(x - 250, y - 50);
-        glTexCoord2f(1.0f, 0.0f); glVertex2f(x + 250, y - 50);
-        glTexCoord2f(1.0f, 1.0f); glVertex2f(x + 250, y + 50);
-        glTexCoord2f(0.0f, 1.0f); glVertex2f(x - 250, y + 50);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(x - 250, y - 50);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(x + 250, y - 50);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(x + 250, y + 50);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(x - 250, y + 50);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -154,12 +228,8 @@ void death_detection(struct character_info *character) {
     int character_x = (int) truncf(character->x / 100);
     int character_y = (int) truncf(character->y / 100);
     if (map_data[character_y][character_x] == 3) {
-        printf("You died.\n");
-        Menus = MAIN_MANU;
-        character1.x = 950.0f;
-        character1.y = 550.0f;
-        character2.x = 150.0f;
-        character2.y = 150.0f;
+        character->died = true;
+        score_timer = time(NULL) + 3;
     }
 }
 
@@ -280,16 +350,19 @@ void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
             printf("Going left\n");
             break;
         case 'z':
-            enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100), (int) truncf(character2.x / 100),
+            enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100),
+                    (int) truncf(character2.x / 100),
                     (int) truncf(character2.y / 100), time(NULL));
             break;
         case '0':
-            enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100), (int) truncf(character1.x / 100),
+            enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100),
+                    (int) truncf(character1.x / 100),
                     (int) truncf(character1.y / 100), time(NULL));
             break;
         default:
             break;
     }
+
 }
 
 void key_stop_movement_character2(unsigned char key, int miceX, int miceY) {
@@ -313,6 +386,7 @@ void key_stop_movement_character2(unsigned char key, int miceX, int miceY) {
         default:
             break;
     }
+
 }
 
 void mouse(int button, int state, int miceX, int miceY) {
@@ -422,14 +496,28 @@ void game() {
     player_hitbox_detection(&character1, &character2);
     draw_crates();
 
-    entity_square(character1.x - 50, character1.y - 50, 1.0f, 0.0f, 1.0f);
-    entity_square(character2.x - 50, character2.y - 50, 1.0f, 0.0f, 1.0f);
+    entity_square(character1.x - 50, character1.y - 50, 0.0f, 0.0f, 0.5f);
+    entity_square(character2.x - 50, character2.y - 50, 0.5f, 0.0f, 0.0f);
     update_movement(&character1, &character2);
     update_movement(&character2, &character1);
 
     death_detection(&character1);
     death_detection(&character2);
     glCallList(mapDisplayList);
+    if (character1.died || character2.died) {
+        if (!proceed) {
+            set_score();
+        }
+        if (time(NULL) <= score_timer) {
+            view_scores();
+        } else {
+            win_check(&character1, "Blue");
+            win_check(&character2, "Red");
+        }
+        if (time(NULL) > score_timer) {
+            restart_game();
+        }
+    }
 }
 
 void main_menu() {
@@ -447,7 +535,6 @@ void options() {
 
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     switch (Menus) {
         case GAME:
             game();
