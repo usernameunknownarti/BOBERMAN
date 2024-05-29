@@ -40,6 +40,7 @@ enum Menus {
 } Menus = MAIN_MANU;
 
 bool proceed = false;
+bool paused = false;
 unsigned long long score_timer;
 
 struct queue_pointers {
@@ -49,28 +50,11 @@ struct queue_pointers {
 // Ta tablica to abominacja,
 // będzie trzeba napisać funkcję która zczytuje wartości z pliku "map1.txt"
 // w folderze maps i wpisuje je do tej tablicy
-char map_data[7][11] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-};
-
-char original_map_data[7][11] = {
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 2, 0, 0, 0, 0, 0, 1,
-        1, 0, 0, 0, 0, 2, 0, 0, 0, 0, 1,
-        1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
-};
+char map_data[7][11];
+char original_map_data[7][11];
 
 GLuint mapDisplayList;
-GLuint texture[13];
+GLuint texture[14];
 
 void entity_square(float x, float y, GLuint texture_gluint) {
     glBindTexture(GL_TEXTURE_2D, texture_gluint);
@@ -90,6 +74,26 @@ void entity_square(float x, float y, GLuint texture_gluint) {
 //    glRectf(x, y, x + 100, y + 100);
 }
 
+void set_map(char *filename) {
+    FILE *fp = fopen(filename, "r");
+    if (fp == NULL) {
+        printf("bozo");
+        return;
+    }
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 11; j++) {
+            fscanf(fp, "%1s", &map_data[i][j]);
+        }
+    }
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 11; j++) {
+            map_data[i][j] -= 48;
+            original_map_data[i][j] = map_data[i][j];
+        }
+    }
+    fclose(fp);
+}
+
 void entity_rectangle_alpha(float r, float g, float b, float alpha, float x, float y) {
     glColor4f(r, g, b, alpha);
     glRectf(x, 0, x + 300, 1100);
@@ -99,14 +103,14 @@ void entity_score(float x, float r, float g, float b, struct character_info *cha
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
     glPushMatrix();
 
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    glEnable(GL_BLEND);
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glEnable(GL_BLEND);
     entity_rectangle_alpha(r, g, b, 0.5f, x, 0);
     glColor3f(1.0f, 1.0f, 1.0f);
     glTranslatef(x + 70, 450.0f, 0.0f);
     glScalef(2.0f, -2.0f, 2.0f);
     glutStrokeCharacter(GLUT_STROKE_ROMAN, character->score + '0');
-    glDisable(GL_BLEND);
+//    glDisable(GL_BLEND);
 
     glPopMatrix();
     glPopAttrib();
@@ -122,8 +126,8 @@ void win_check(struct character_info *character, char *color) {
 }
 
 void restart_map_data() {
-    for(int i = 0; i < 7; i++) {
-        for(int j = 0; j < 11; j++) {
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 11; j++) {
             map_data[i][j] = original_map_data[i][j];
         }
     }
@@ -174,6 +178,22 @@ void entity_button(float x, float y, GLuint texture_gluint) {
     glVertex2f(x + 250, y + 50);
     glTexCoord2f(0.0f, 1.0f);
     glVertex2f(x - 250, y + 50);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void entity_pause(float x, float y, GLuint texture_gluint) {
+    glBindTexture(GL_TEXTURE_2D, texture_gluint);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(x, y);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(x + 550, y);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(x + 550, y + 275);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(x, y + 275);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -316,108 +336,163 @@ bool hitbox_detection(struct character_info *character) {
     return false;
 }
 
+GLuint loadTexture(const char *filename) {
+    int width, height, channels;
+    unsigned char *pixel_data = stbi_load(filename, &width, &height, &channels, 0);
+    if (!pixel_data) {
+        printf("nie ma tekstury\n");
+        return 0;
+    }
+
+    GLuint texture_gluint;
+    glGenTextures(1, &texture_gluint);
+    glBindTexture(GL_TEXTURE_2D, texture_gluint);
+
+    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
+    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixel_data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+    stbi_image_free(pixel_data);
+    return texture_gluint;
+}
+
 void key_start_movement_character1(int key, int miceX, int miceY) {
-    switch (key) {
-        case GLUT_KEY_UP:
-            character1.moving_up = true;
-            printf("Going up\n");
-            break;
-        case GLUT_KEY_DOWN:
-            character1.moving_down = true;
-            printf("Going down\n");
-            break;
-        case GLUT_KEY_RIGHT:
-            character1.moving_right = true;
-            printf("Going right\n");
-            break;
-        case GLUT_KEY_LEFT:
-            character1.moving_left = true;
-            printf("Going left\n");
-            break;
-        default:
-            break;
+    if (!paused) {
+        switch (key) {
+            case GLUT_KEY_UP:
+                character1.moving_up = true;
+                texture[7] = loadTexture("graphics/block_beaver_blue_back.png");
+                printf("Going up\n");
+                break;
+            case GLUT_KEY_DOWN:
+                character1.moving_down = true;
+                texture[7] = loadTexture("graphics/block_beaver_blue_front.png");
+                printf("Going down\n");
+                break;
+            case GLUT_KEY_RIGHT:
+                character1.moving_right = true;
+                texture[7] = loadTexture("graphics/block_beaver_blue_right.png");
+                printf("Going right\n");
+                break;
+            case GLUT_KEY_LEFT:
+                character1.moving_left = true;
+                texture[7] = loadTexture("graphics/block_beaver_blue_left.png");
+                printf("Going left\n");
+                break;
+            default:
+                break;
+        }
     }
 }
 
 void key_stop_movement_character1(int key, int miceX, int miceY) {
-    switch (key) {
-        case GLUT_KEY_UP:
-            character1.moving_up = false;
-            printf("Stopped going up\n");
-            break;
-        case GLUT_KEY_DOWN:
-            character1.moving_down = false;
-            printf("Stopped going down\n");
-            break;
-        case GLUT_KEY_RIGHT:
-            character1.moving_right = false;
-            printf("Stopped going right\n");
-            break;
-        case GLUT_KEY_LEFT:
-            character1.moving_left = false;
-            printf("Stopped going left\n");
-            break;
-        default:
-            break;
+    if (!paused) {
+        switch (key) {
+            case GLUT_KEY_UP:
+                character1.moving_up = false;
+                printf("Stopped going up\n");
+                break;
+            case GLUT_KEY_DOWN:
+                character1.moving_down = false;
+                printf("Stopped going down\n");
+                break;
+            case GLUT_KEY_RIGHT:
+                character1.moving_right = false;
+                printf("Stopped going right\n");
+                break;
+            case GLUT_KEY_LEFT:
+                character1.moving_left = false;
+                printf("Stopped going left\n");
+                break;
+            default:
+                break;
+        }
     }
 }
 
 void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
-    switch (key) {
-        case 'w':
-            character2.moving_up = true;
-            printf("Going up\n");
-            break;
-        case 's':
-            character2.moving_down = true;
-            printf("Going down\n");
-            break;
-        case 'd':
-            character2.moving_right = true;
-            printf("Going right\n");
-            break;
-        case 'a':
-            character2.moving_left = true;
-            printf("Going left\n");
-            break;
-        case 'z':
-            enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100),
-                    (int) truncf(character2.x / 100),
-                    (int) truncf(character2.y / 100), time(NULL));
-            break;
-        case '0':
-            enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100),
-                    (int) truncf(character1.x / 100),
-                    (int) truncf(character1.y / 100), time(NULL));
-            break;
-        default:
-            break;
+    if (!paused) {
+        switch (key) {
+            case 'w':
+                character2.moving_up = true;
+                texture[8] = loadTexture("graphics/block_beaver_red_back.png");
+                printf("Going up\n");
+                break;
+            case 's':
+                character2.moving_down = true;
+                texture[8] = loadTexture("graphics/block_beaver_red_front.png");
+                printf("Going down\n");
+                break;
+            case 'd':
+                character2.moving_right = true;
+                texture[8] = loadTexture("graphics/block_beaver_red_right.png");
+                printf("Going right\n");
+                break;
+            case 'a':
+                character2.moving_left = true;
+                texture[8] = loadTexture("graphics/block_beaver_red_left.png");
+                printf("Going left\n");
+                break;
+            case 'z':
+                enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100),
+                        (int) truncf(character2.x / 100),
+                        (int) truncf(character2.y / 100), time(NULL));
+                break;
+            case '0':
+                enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100),
+                        (int) truncf(character1.x / 100),
+                        (int) truncf(character1.y / 100), time(NULL));
+                break;
+            case 27:
+                paused = true;
+                break;
+            default:
+                break;
+        }
     }
-
 }
 
 void key_stop_movement_character2(unsigned char key, int miceX, int miceY) {
-    switch (key) {
-        case 'w':
-            character2.moving_up = false;
-            printf("Stopped going up\n");
-            break;
-        case 's':
-            character2.moving_down = false;
-            printf("Stopped going down\n");
-            break;
-        case 'd':
-            character2.moving_right = false;
-            printf("Stopped going right\n");
-            break;
-        case 'a':
-            character2.moving_left = false;
-            printf("Stopped going left\n");
-            break;
-        default:
-            break;
+    if (!paused) {
+        switch (key) {
+            case 'w':
+                character2.moving_up = false;
+                printf("Stopped going up\n");
+                break;
+            case 's':
+                character2.moving_down = false;
+                printf("Stopped going down\n");
+                break;
+            case 'd':
+                character2.moving_right = false;
+                printf("Stopped going right\n");
+                break;
+            case 'a':
+                character2.moving_left = false;
+                printf("Stopped going left\n");
+                break;
+            default:
+                break;
+        }
     }
+}
 
+void draw_map() {
+    float sumx = 0.0f, sumy = 0.0f;
+    for (int i = 0; i < WINDOW_HEIGHT / 100; i++) {
+        for (int j = 0; j < WINDOW_WIDTH / 100; j++) {
+            if (map_data[i][j] == 1) {
+                entity_square(sumx, sumy, texture[12]);
+            }
+            sumx += 100.0f;
+        }
+        sumx = 0.0f;
+        sumy += 100.0f;
+    }
 }
 
 void mouse(int button, int state, int miceX, int miceY) {
@@ -435,14 +510,38 @@ void mouse(int button, int state, int miceX, int miceY) {
     if (button == GLUT_LEFT_BUTTON && Menus == OPTIONS && state == GLUT_DOWN) {
         if (miceX <= 800 && miceX >= 300 && miceY <= 200 && miceY >= 100) {
             printf("map1\n");
+            set_map("maps/map1.txt");
+            glNewList(mapDisplayList, GL_COMPILE);
+            draw_map();
+            glEndList();
         }
         if (miceX <= 800 && miceX >= 300 && miceY <= 325 && miceY >= 225) {
             printf("map2\n");
+            set_map("maps/map2.txt");
+            glNewList(mapDisplayList, GL_COMPILE);
+            draw_map();
+            glEndList();
         }
         if (miceX <= 800 && miceX >= 300 && miceY <= 450 && miceY >= 350) {
             printf("map3\n");
+            set_map("maps/map3.txt");
+            glNewList(mapDisplayList, GL_COMPILE);
+            draw_map();
+            glEndList();
         }
         if (miceX <= 800 && miceX >= 300 && miceY <= 600 && miceY >= 500) {
+            Menus = MAIN_MANU;
+        }
+    }
+    if (button == GLUT_LEFT_BUTTON && Menus == GAME && state == GLUT_DOWN) {
+        if (paused && miceX <= 750 && miceX >= 350 && miceY <= 350 && miceY >= 275) {
+            paused = false;
+        }
+        if (paused && miceX <= 750 && miceX >= 350 && miceY <= 500 && miceY >= 375) {
+            proceed = true;
+            restart_game();
+            restart_map_data();
+            paused = false;
             Menus = MAIN_MANU;
         }
     }
@@ -450,44 +549,30 @@ void mouse(int button, int state, int miceX, int miceY) {
 
 void update_movement(struct character_info *characterr1, struct character_info *characterr2) {
     if (characterr1->moving_up == true) {
-        characterr1->y -= 5;
+        characterr1->y -= 4;
         if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
-            characterr1->y += 5;
+            characterr1->y += 4;
         }
     }
     if (characterr1->moving_down == true) {
-        characterr1->y += 5;
+        characterr1->y += 4;
         if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
-            characterr1->y -= 5;
+            characterr1->y -= 4;
         }
     }
     if (characterr1->moving_right == true) {
-        characterr1->x += 5;
+        characterr1->x += 4;
         if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
-            characterr1->x -= 5;
+            characterr1->x -= 4;
         }
     }
     if (characterr1->moving_left == true) {
-        characterr1->x -= 5;
+        characterr1->x -= 4;
         if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
-            characterr1->x += 5;
+            characterr1->x += 4;
         }
     }
     glutPostRedisplay();
-}
-
-void draw_map() {
-    float sumx = 0.0f, sumy = 0.0f;
-    for (int i = 0; i < WINDOW_HEIGHT / 100; i++) {
-        for (int j = 0; j < WINDOW_WIDTH / 100; j++) {
-            if (map_data[i][j] == 1) {
-                entity_square(sumx, sumy, texture[12]);
-            }
-            sumx += 100.0f;
-        }
-        sumx = 0.0f;
-        sumy += 100.0f;
-    }
 }
 
 void draw_crates() {
@@ -535,6 +620,9 @@ void game() {
     death_detection(&character1);
     death_detection(&character2);
     glCallList(mapDisplayList);
+    if (paused) {
+        entity_pause(275, 225, texture[13]);
+    }
     if (character1.died || character2.died) {
         if (!proceed) {
             set_score();
@@ -585,38 +673,17 @@ void display() {
     glutSwapBuffers();
 }
 
-GLuint loadTexture(const char *filename) {
-    int width, height, channels;
-    unsigned char *pixel_data = stbi_load(filename, &width, &height, &channels, 0);
-    if (!pixel_data) {
-        printf("nie ma tekstury\n");
-        return 0;
-    }
-
-    GLuint texture_gluint;
-    glGenTextures(1, &texture_gluint);
-    glBindTexture(GL_TEXTURE_2D, texture_gluint);
-
-    GLenum format = (channels == 4) ? GL_RGBA : GL_RGB;
-    glTexImage2D(GL_TEXTURE_2D, 0, format, width, height, 0, format, GL_UNSIGNED_BYTE, pixel_data);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    stbi_image_free(pixel_data);
-    return texture_gluint;
-}
-
 void init() {
     glClearColor(0.294f, 0.388f, 0.165f, 0.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
     // Wartosci do ustawienie, jak na razie nie ma roznicy co sie ustawi, ale moze to spowodowac bledy w przyszlosci.
     gluOrtho2D(0.0, WINDOW_WIDTH, WINDOW_HEIGHT, 0.0);
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
+    set_map("maps/map1.txt");
 
     mapDisplayList = glGenLists(1);
     glNewList(mapDisplayList, GL_COMPILE);
@@ -644,12 +711,15 @@ int main(int argc, char **argv) {
     texture[5] = loadTexture("graphics/button_map3.png");
     texture[6] = loadTexture("graphics/button_back.png");
 
-    texture[7] = loadTexture("graphics/block_beaver_blue.png");
-    texture[8] = loadTexture("graphics/block_beaver_red.png");
+
+    texture[7] = loadTexture("graphics/block_beaver_blue_front.png");
+    texture[8] = loadTexture("graphics/block_beaver_red_front.png");
     texture[9] = loadTexture("graphics/block_bomb.png");
     texture[10] = loadTexture("graphics/block_crate.png");
     texture[11] = loadTexture("graphics/block_fire.png");
     texture[12] = loadTexture("graphics/block_wall.png");
+
+    texture[13] = loadTexture("graphics/ingame_pause.png");
     init();
 
     glutDisplayFunc(display);
