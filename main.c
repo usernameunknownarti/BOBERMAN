@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <GL/gl.h>
 #include <GL/glut.h>
+#include <GL/freeglut.h>
 #include <math.h>
 #include <stdbool.h>
 #include <time.h>
@@ -21,8 +22,14 @@ struct character_info {
     bool moving_left;
     bool moving_right;
     bool died;
-    bool invincible;
+    bool ability_to_bomb;
 } character1, character2;
+
+enum BombStatus {
+    BOMB,
+    EXPLODING,
+    AFTERMATH
+};
 
 struct queue_node {
     unsigned long long bomb_timer;
@@ -30,6 +37,7 @@ struct queue_node {
     float bomb_x;
     int aftermath_y;
     int aftermath_x;
+    enum BombStatus bomb_status;
     struct queue_node *next;
 };
 
@@ -42,6 +50,7 @@ enum Menus {
 bool proceed = false;
 bool paused = false;
 unsigned long long score_timer;
+unsigned long long paused_time;
 
 struct queue_pointers {
     struct queue_node *head, *tail;
@@ -99,6 +108,11 @@ void entity_rectangle_alpha(float r, float g, float b, float alpha, float x, flo
     glRectf(x, 0, x + 300, 1100);
 }
 
+void entity_big_rectangle_alpha(float r, float g, float b, float alpha) {
+    glColor4f(r, g, b, alpha);
+    glRectf(0, 150, 1100, 550);
+}
+
 void entity_score(float x, float r, float g, float b, struct character_info *character) {
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
     glPushMatrix();
@@ -116,12 +130,29 @@ void entity_score(float x, float r, float g, float b, struct character_info *cha
     glPopAttrib();
 }
 
-void win_check(struct character_info *character, char *color) {
+void entity_winner(float r, float g, float b, const char *winner, float offset) {
+    glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT);
+    glPushMatrix();
+//    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+//    glEnable(GL_BLEND);
+    entity_big_rectangle_alpha(r, g, b, 0.5f);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glTranslatef(offset, 390.0f, 0.0f);
+    glScalef(0.90f, -0.90f, 0.90f);
+    glutStrokeString(GLUT_STROKE_ROMAN, (const unsigned char *) winner);
+//    glDisable(GL_BLEND);
+    glPopMatrix();
+    glPopAttrib();
+}
+
+void win(struct character_info *character, float r, float g, float b, const char *winner, float offset) {
     if (character->score == 5) {
-        printf("%s wins!\n", color);
-        character->score = 0;
-        character->score = 0;
-        Menus = MAIN_MANU;
+        entity_winner(r, g, b, winner, offset);
+        if (time(NULL) >= score_timer + 10) {
+            character->score = 0;
+            character->score = 0;
+            Menus = MAIN_MANU;
+        }
     }
 }
 
@@ -136,6 +167,8 @@ void restart_map_data() {
 void restart_game() {
     character1.died = false;
     character2.died = false;
+    character1.ability_to_bomb = true;
+    character2.ability_to_bomb = true;
     if (proceed) {
         character1.x = 950.0f;
         character1.y = 550.0f;
@@ -208,6 +241,7 @@ bool enqueue(struct queue_pointers *queue_bomb, float bomb_x, float bomb_y, int 
         new_node->aftermath_y = aftermath_y;
         new_node->bomb_timer = bomb_timer;
         new_node->next = NULL;
+        new_node->bomb_status = BOMB;
         if (queue_bomb->head == NULL) {
             queue_bomb->head = queue_bomb->tail = new_node;
         } else {
@@ -278,8 +312,10 @@ void bomb_cleanup(struct queue_node *queue_bomb) {
 void death_detection(struct character_info *character) {
     int character_x = (int) truncf(character->x / 100);
     int character_y = (int) truncf(character->y / 100);
-    if (map_data[character_y][character_x] == 3) {
+    if (map_data[character_y][character_x] == 3 && !character->died) {
         character->died = true;
+        character->x = 9999.0f;
+        character->y = 9999.0f;
         score_timer = time(NULL) + 3;
     }
 }
@@ -438,14 +474,18 @@ void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
                 printf("Going left\n");
                 break;
             case 'z':
-                enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100),
-                        (int) truncf(character2.x / 100),
-                        (int) truncf(character2.y / 100), time(NULL));
+                if (character1.ability_to_bomb || character2.ability_to_bomb) {
+                    enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100),
+                            (int) truncf(character2.x / 100),
+                            (int) truncf(character2.y / 100), time(NULL));
+                }
                 break;
             case '0':
-                enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100),
-                        (int) truncf(character1.x / 100),
-                        (int) truncf(character1.y / 100), time(NULL));
+                if (character1.ability_to_bomb || character2.ability_to_bomb) {
+                    enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100),
+                            (int) truncf(character1.x / 100),
+                            (int) truncf(character1.y / 100), time(NULL));
+                }
                 break;
             case 27:
                 paused = true;
@@ -548,29 +588,37 @@ void mouse(int button, int state, int miceX, int miceY) {
 }
 
 void update_movement(struct character_info *characterr1, struct character_info *characterr2) {
-    if (characterr1->moving_up == true) {
+    if (characterr1->moving_up == true && !paused) {
         characterr1->y -= 4;
         if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
             characterr1->y += 4;
         }
+    } else {
+        characterr1->moving_up = false;
     }
-    if (characterr1->moving_down == true) {
+    if (characterr1->moving_down == true && !paused) {
         characterr1->y += 4;
         if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
             characterr1->y -= 4;
         }
+    } else {
+        characterr1->moving_down = false;
     }
-    if (characterr1->moving_right == true) {
+    if (characterr1->moving_right == true && !paused) {
         characterr1->x += 4;
         if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
             characterr1->x -= 4;
         }
+    } else {
+        characterr1->moving_right = false;
     }
-    if (characterr1->moving_left == true) {
+    if (characterr1->moving_left == true && !paused) {
         characterr1->x -= 4;
         if (hitbox_detection(characterr1) || player_hitbox_detection(characterr1, characterr2)) {
             characterr1->x += 4;
         }
+    } else {
+        characterr1->moving_left = false;
     }
     glutPostRedisplay();
 }
@@ -591,23 +639,32 @@ void draw_crates() {
 
 void bombing(struct queue_pointers *queue_bomb) {
     struct queue_node *current = queue_bomb->head;
+    if (paused && queue.tail != NULL && current->bomb_status == GAME) {
+        paused_time = time(NULL) - queue.tail->bomb_timer;
+    }
+    if (paused && queue.tail != NULL && current->bomb_status == EXPLODING) {
+        paused_time = time(NULL) - queue.tail->bomb_timer - 2;
+    }
     while (current != NULL) {
-        if (current->bomb_timer + 1 >= time(NULL)) {
+        if (current->bomb_timer + 1 + paused_time >= time(NULL)) {
+            current->bomb_status = BOMB;
             entity_square(current->bomb_x * 100, current->bomb_y * 100, texture[9]);
         }
-        if (current->bomb_timer + 2 >= time(NULL) && current->bomb_timer + 1 < time(NULL)) {
+        if (current->bomb_timer + 2 + paused_time == time(NULL)) {
+            current->bomb_status = EXPLODING;
             explosion(current);
         }
-        if (current->bomb_timer + 2 < time(NULL)) {
+        if (current->bomb_timer + 3 + paused_time == time(NULL)) {
+            current->bomb_status = AFTERMATH;
             bomb_cleanup(current);
             dequeue(queue_bomb);
+            paused_time = 0;
         }
         current = current->next;
     }
 }
 
 void game() {
-    bombing(&queue);
     bombing(&queue);
     player_hitbox_detection(&character1, &character2);
     draw_crates();
@@ -624,16 +681,18 @@ void game() {
         entity_pause(275, 225, texture[13]);
     }
     if (character1.died || character2.died) {
+        character1.ability_to_bomb = false;
+        character2.ability_to_bomb = false;
         if (!proceed) {
             set_score();
         }
         if (time(NULL) <= score_timer) {
             view_scores();
         } else {
-            win_check(&character1, "Blue");
-            win_check(&character2, "Red");
+            win(&character1, 0.0f, 0.0f, 1.0f, "Niebieski wygrywa!", 11.8f);
+            win(&character2, 1.0f, 0.0f, 0.0f, "Czerwony wygrywa!", 11.5f);
         }
-        if (time(NULL) > score_timer) {
+        if (time(NULL) > score_timer && character1.score != 5 && character2.score != 5) {
             restart_game();
             restart_map_data();
         }
@@ -696,6 +755,8 @@ int main(int argc, char **argv) {
     character1.y = 550.0f;
     character2.x = 150.0f;
     character2.y = 150.0f;
+    character1.ability_to_bomb = true;
+    character2.ability_to_bomb = true;
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
