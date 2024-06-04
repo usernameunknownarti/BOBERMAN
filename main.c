@@ -10,6 +10,10 @@
 
 #include "libs/stb_image.h"
 
+#define MINIAUDIO_IMPLEMENTATION
+
+#include "libs/miniaudio.h"
+
 #define WINDOW_WIDTH 1100
 #define WINDOW_HEIGHT 700
 
@@ -23,6 +27,7 @@ struct character_info {
     bool moving_right;
     bool died;
     bool ability_to_bomb;
+    bool can_play_death_sound;
 } character1, character2;
 
 enum BombStatus {
@@ -38,6 +43,7 @@ struct queue_node {
     int aftermath_y;
     int aftermath_x;
     enum BombStatus bomb_status;
+    bool can_play_explosion_sound;
     struct queue_node *next;
 };
 
@@ -64,6 +70,9 @@ char original_map_data[7][11];
 
 GLuint mapDisplayList;
 GLuint texture[14];
+ma_engine engine_character1;
+ma_engine engine_character2;
+ma_engine engine_independent;
 
 void entity_square(float x, float y, GLuint texture_gluint) {
     glBindTexture(GL_TEXTURE_2D, texture_gluint);
@@ -149,8 +158,8 @@ void win(struct character_info *character, float r, float g, float b, const char
     if (character->score == 5) {
         entity_winner(r, g, b, winner, offset);
         if (time(NULL) >= score_timer + 10) {
-            character->score = 0;
-            character->score = 0;
+            character1.score = 0;
+            character2.score = 0;
             Menus = MAIN_MANU;
         }
     }
@@ -169,6 +178,8 @@ void restart_game() {
     character2.died = false;
     character1.ability_to_bomb = true;
     character2.ability_to_bomb = true;
+    character1.can_play_death_sound = true;
+    character2.can_play_death_sound = true;
     if (proceed) {
         character1.x = 950.0f;
         character1.y = 550.0f;
@@ -239,9 +250,11 @@ bool enqueue(struct queue_pointers *queue_bomb, float bomb_x, float bomb_y, int 
         new_node->bomb_y = bomb_y;
         new_node->aftermath_x = aftermath_x;
         new_node->aftermath_y = aftermath_y;
+        map_data[new_node->aftermath_y][new_node->aftermath_x] = 4;
         new_node->bomb_timer = bomb_timer;
         new_node->next = NULL;
         new_node->bomb_status = BOMB;
+        new_node->can_play_explosion_sound = true;
         if (queue_bomb->head == NULL) {
             queue_bomb->head = queue_bomb->tail = new_node;
         } else {
@@ -256,6 +269,7 @@ bool enqueue(struct queue_pointers *queue_bomb, float bomb_x, float bomb_y, int 
 bool dequeue(struct queue_pointers *queue_bomb) {
     if (queue_bomb->head != NULL) {
         struct queue_node *tmp = queue_bomb->head->next;
+        map_data[queue_bomb->head->aftermath_y][queue_bomb->head->aftermath_x] = 0;
         free(queue_bomb->head);
         queue_bomb->head = tmp;
         if (tmp == NULL) {
@@ -266,10 +280,18 @@ bool dequeue(struct queue_pointers *queue_bomb) {
     return false;
 }
 
+void play_explosion_sound_effect(struct queue_node **queue_node) {
+    if ((*queue_node)->can_play_explosion_sound) {
+        ma_engine_play_sound(&engine_independent, "sounds/dry_fart.wav", NULL);
+        (*queue_node)->can_play_explosion_sound = false;
+    }
+}
+
 void explosion(struct queue_node *queue_bomb) {
     float j = 0;
     entity_square((queue_bomb->bomb_x) * 100, (queue_bomb->bomb_y) * 100, texture[11]);
     map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x] = 3;
+    play_explosion_sound_effect(&queue_bomb);
     for (int i = 1; i < 2; i++) {
         j = j + 1;
         entity_square((queue_bomb->bomb_x + j) * 100, queue_bomb->bomb_y * 100, texture[11]);
@@ -309,10 +331,18 @@ void bomb_cleanup(struct queue_node *queue_bomb) {
     }
 }
 
-void death_detection(struct character_info *character) {
+void play_death_sound_effect(ma_engine engine, struct character_info **character) {
+    if ((*character)->can_play_death_sound) {
+        ma_engine_play_sound(&engine, "sounds/clash-royale-king-laugh.wav", NULL);
+        (*character)->can_play_death_sound = false;
+    }
+}
+
+void death_detection(ma_engine engine, struct character_info *character) {
     int character_x = (int) truncf(character->x / 100);
     int character_y = (int) truncf(character->y / 100);
     if (map_data[character_y][character_x] == 3 && !character->died) {
+        play_death_sound_effect(engine, &character);
         character->died = true;
         character->x = 9999.0f;
         character->y = 9999.0f;
@@ -451,7 +481,7 @@ void key_stop_movement_character1(int key, int miceX, int miceY) {
 }
 
 void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
-    if (!paused) {
+    if (Menus == GAME && !paused) {
         switch (key) {
             case 'w':
                 character2.moving_up = true;
@@ -474,21 +504,32 @@ void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
                 printf("Going left\n");
                 break;
             case 'z':
-                if (character1.ability_to_bomb || character2.ability_to_bomb) {
-                    enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100),
-                            (int) truncf(character2.x / 100),
-                            (int) truncf(character2.y / 100), time(NULL));
+                if (map_data[(int) truncf(character2.y / 100)][(int) truncf(character2.x / 100)] == 0 && !character2.died) {
+                    if (character1.ability_to_bomb || character2.ability_to_bomb) {
+                        enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100),
+                                (int) truncf(character2.x / 100),
+                                (int) truncf(character2.y / 100), time(NULL));
+                        ma_engine_play_sound(&engine_character2, "sounds/jixaw-metal-pipe-falling-sound.wav", NULL);
+                    }
+                    printf("bruh\n");
                 }
                 break;
             case '0':
-                if (character1.ability_to_bomb || character2.ability_to_bomb) {
-                    enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100),
-                            (int) truncf(character1.x / 100),
-                            (int) truncf(character1.y / 100), time(NULL));
+                if (map_data[(int) truncf(character1.y / 100)][(int) truncf(character1.x / 100)] == 0 && !character1.died) {
+                    if (character1.ability_to_bomb || character2.ability_to_bomb) {
+                        enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100),
+                                (int) truncf(character1.x / 100),
+                                (int) truncf(character1.y / 100), time(NULL));
+                        ma_engine_play_sound(&engine_character2, "sounds/jixaw-metal-pipe-falling-sound.wav", NULL);
+                    }
+                    printf("bruh\n");
                 }
                 break;
             case 27:
-                paused = true;
+                if(!paused) {
+                    paused = true;
+                    ma_engine_play_sound(&engine_independent, "sounds/21_3.wav", NULL);
+                }
                 break;
             default:
                 break;
@@ -539,9 +580,11 @@ void mouse(int button, int state, int miceX, int miceY) {
     if (button == GLUT_LEFT_BUTTON && Menus == MAIN_MANU && state == GLUT_DOWN) {
         if (miceX <= 800 && miceX >= 300 && miceY <= 400 && miceY >= 300) {
             Menus = GAME;
+            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
         }
         if (miceX <= 800 && miceX >= 300 && miceY <= 525 && miceY >= 425) {
             Menus = OPTIONS;
+            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
         }
         if (miceX <= 800 && miceX >= 300 && miceY <= 650 && miceY >= 550) {
             exit(0);
@@ -549,6 +592,7 @@ void mouse(int button, int state, int miceX, int miceY) {
     }
     if (button == GLUT_LEFT_BUTTON && Menus == OPTIONS && state == GLUT_DOWN) {
         if (miceX <= 800 && miceX >= 300 && miceY <= 200 && miceY >= 100) {
+            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
             printf("map1\n");
             set_map("maps/map1.txt");
             glNewList(mapDisplayList, GL_COMPILE);
@@ -556,6 +600,7 @@ void mouse(int button, int state, int miceX, int miceY) {
             glEndList();
         }
         if (miceX <= 800 && miceX >= 300 && miceY <= 325 && miceY >= 225) {
+            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
             printf("map2\n");
             set_map("maps/map2.txt");
             glNewList(mapDisplayList, GL_COMPILE);
@@ -563,6 +608,7 @@ void mouse(int button, int state, int miceX, int miceY) {
             glEndList();
         }
         if (miceX <= 800 && miceX >= 300 && miceY <= 450 && miceY >= 350) {
+            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
             printf("map3\n");
             set_map("maps/map3.txt");
             glNewList(mapDisplayList, GL_COMPILE);
@@ -570,14 +616,17 @@ void mouse(int button, int state, int miceX, int miceY) {
             glEndList();
         }
         if (miceX <= 800 && miceX >= 300 && miceY <= 600 && miceY >= 500) {
+            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
             Menus = MAIN_MANU;
         }
     }
     if (button == GLUT_LEFT_BUTTON && Menus == GAME && state == GLUT_DOWN) {
         if (paused && miceX <= 750 && miceX >= 350 && miceY <= 350 && miceY >= 275) {
+            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
             paused = false;
         }
         if (paused && miceX <= 750 && miceX >= 350 && miceY <= 500 && miceY >= 375) {
+            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
             proceed = true;
             restart_game();
             restart_map_data();
@@ -639,6 +688,7 @@ void draw_crates() {
 
 void bombing(struct queue_pointers *queue_bomb) {
     struct queue_node *current = queue_bomb->head;
+    struct queue_node *next;
     if (paused && queue.tail != NULL && current->bomb_status == GAME) {
         paused_time = time(NULL) - queue.tail->bomb_timer;
     }
@@ -646,6 +696,7 @@ void bombing(struct queue_pointers *queue_bomb) {
         paused_time = time(NULL) - queue.tail->bomb_timer - 2;
     }
     while (current != NULL) {
+        next = current->next;
         if (current->bomb_timer + 1 + paused_time >= time(NULL)) {
             current->bomb_status = BOMB;
             entity_square(current->bomb_x * 100, current->bomb_y * 100, texture[9]);
@@ -660,7 +711,7 @@ void bombing(struct queue_pointers *queue_bomb) {
             dequeue(queue_bomb);
             paused_time = 0;
         }
-        current = current->next;
+        current = next;
     }
 }
 
@@ -674,8 +725,8 @@ void game() {
     update_movement(&character1, &character2);
     update_movement(&character2, &character1);
 
-    death_detection(&character1);
-    death_detection(&character2);
+    death_detection(engine_character1, &character1);
+    death_detection(engine_character2, &character2);
     glCallList(mapDisplayList);
     if (paused) {
         entity_pause(275, 225, texture[13]);
@@ -736,6 +787,11 @@ void init() {
     glClearColor(0.294f, 0.388f, 0.165f, 0.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+
+    ma_engine_init(NULL, &engine_character1);
+    ma_engine_init(NULL, &engine_character2);
+    ma_engine_init(NULL, &engine_independent);
+
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
     // Wartosci do ustawienie, jak na razie nie ma roznicy co sie ustawi, ale moze to spowodowac bledy w przyszlosci.
@@ -743,7 +799,6 @@ void init() {
     glEnable(GL_TEXTURE_2D);
     glDisable(GL_DEPTH_TEST);
     set_map("maps/map1.txt");
-
     mapDisplayList = glGenLists(1);
     glNewList(mapDisplayList, GL_COMPILE);
     draw_map();
@@ -757,6 +812,8 @@ int main(int argc, char **argv) {
     character2.y = 150.0f;
     character1.ability_to_bomb = true;
     character2.ability_to_bomb = true;
+    character1.can_play_death_sound = true;
+    character2.can_play_death_sound = true;
 
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
@@ -771,7 +828,6 @@ int main(int argc, char **argv) {
     texture[4] = loadTexture("graphics/button_map2.png");
     texture[5] = loadTexture("graphics/button_map3.png");
     texture[6] = loadTexture("graphics/button_back.png");
-
 
     texture[7] = loadTexture("graphics/block_beaver_blue_front.png");
     texture[8] = loadTexture("graphics/block_beaver_red_front.png");
@@ -792,5 +848,8 @@ int main(int argc, char **argv) {
     glutKeyboardUpFunc(key_stop_movement_character2);
 
     glutMainLoop();
+    ma_engine_uninit(&engine_character1);
+    ma_engine_uninit(&engine_character2);
+    ma_engine_uninit(&engine_independent);
     return 0;
 }
