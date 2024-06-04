@@ -69,7 +69,7 @@ char map_data[7][11];
 char original_map_data[7][11];
 
 GLuint mapDisplayList;
-GLuint texture[14];
+GLuint texture[16];
 ma_engine engine_character1;
 ma_engine engine_character2;
 ma_engine engine_independent;
@@ -222,6 +222,22 @@ void entity_button(float x, float y, GLuint texture_gluint) {
     glVertex2f(x + 250, y + 50);
     glTexCoord2f(0.0f, 1.0f);
     glVertex2f(x - 250, y + 50);
+    glEnd();
+    glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+void entity_background(GLuint texture_gluint) {
+    glBindTexture(GL_TEXTURE_2D, texture_gluint);
+    glColor3f(1.0f, 1.0f, 1.0f);
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0f, 0.0f);
+    glVertex2f(0, 0);
+    glTexCoord2f(1.0f, 0.0f);
+    glVertex2f(1100, 0);
+    glTexCoord2f(1.0f, 1.0f);
+    glVertex2f(1100, 700);
+    glTexCoord2f(0.0f, 1.0f);
+    glVertex2f(0, 700);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -716,6 +732,7 @@ void bombing(struct queue_pointers *queue_bomb) {
 }
 
 void game() {
+    entity_background(texture[15]);
     bombing(&queue);
     player_hitbox_detection(&character1, &character2);
     draw_crates();
@@ -751,12 +768,14 @@ void game() {
 }
 
 void main_menu() {
+    entity_background(texture[14]);
     entity_button(550, 350, texture[0]);
     entity_button(550, 475, texture[1]);
     entity_button(550, 600, texture[2]);
 }
 
 void options() {
+    entity_background(texture[14]);
     entity_button(550, 150, texture[3]);
     entity_button(550, 275, texture[4]);
     entity_button(550, 400, texture[5]);
@@ -784,7 +803,8 @@ void display() {
 }
 
 void init() {
-    glClearColor(0.294f, 0.388f, 0.165f, 0.0f);
+    //glClearColor(0.294f, 0.388f, 0.165f, 0.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
@@ -837,6 +857,8 @@ int main(int argc, char **argv) {
     texture[12] = loadTexture("graphics/block_wall.png");
 
     texture[13] = loadTexture("graphics/ingame_pause.png");
+    texture[14] = loadTexture("graphics/background_main_menu.png");
+    texture[15] = loadTexture("graphics/background_game.png");
     init();
 
     glutDisplayFunc(display);
