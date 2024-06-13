@@ -18,23 +18,23 @@
 #define WINDOW_HEIGHT 700
 
 struct character_info {
-    float y;
-    float x;
-    int score;
-    bool moving_up;
-    bool moving_down;
-    bool moving_left;
-    bool moving_right;
-    bool died;
-    bool ability_to_bomb;
-    bool can_play_death_sound;
-} character1, character2;
+    float y; // Pozycja y gracza.
+    float x; // Pozycja x gracza.
+    int score; // Punkty gracza.
+    bool moving_up; // Czy gracz porusza się w gore.
+    bool moving_down; // Czy gracz porusza sie w dol.
+    bool moving_left; // Czy gracz porusza sie w lewo.
+    bool moving_right; // Czy gracz porusza sie w prawo.
+    bool died; // Czy gracz nie zyje.
+    bool ability_to_bomb; // Czy gracz moze polazyc bombe.
+    bool can_play_death_sound; // Czy gracz moze wydac dzwiek smierci.
+} character1, character2; // Struktura przechowująca informacje o graczu.
 
 enum BombStatus {
     BOMB,
     EXPLODING,
     AFTERMATH
-};
+}; // Struktura ktora zawiera aktualny status bomby.
 
 struct queue_node {
     unsigned long long bomb_timer;
@@ -53,6 +53,14 @@ enum Menus {
     MAIN_MANU
 } Menus = MAIN_MANU;
 
+enum Sounds {
+    PLACE_BOMB_SOUND = 0,
+    EXPLOSION_SOUND = 1,
+    MENU_CLICK_SOUND = 2,
+    DEATH_SOUND = 3,
+    PAUSE_SOUND = 4
+};
+
 bool proceed = false;
 bool paused = false;
 unsigned long long score_timer;
@@ -62,17 +70,13 @@ struct queue_pointers {
     struct queue_node *head, *tail;
 } queue = {NULL, NULL};
 
-// Ta tablica to abominacja,
-// będzie trzeba napisać funkcję która zczytuje wartości z pliku "map1.txt"
-// w folderze maps i wpisuje je do tej tablicy
 char map_data[7][11];
 char original_map_data[7][11];
 
 GLuint mapDisplayList;
-GLuint texture[16];
-ma_engine engine_character1;
-ma_engine engine_character2;
-ma_engine engine_independent;
+GLuint texture[17];
+ma_sound sounds[5];
+ma_engine engine;
 
 void entity_square(float x, float y, GLuint texture_gluint) {
     glBindTexture(GL_TEXTURE_2D, texture_gluint);
@@ -95,7 +99,6 @@ void entity_square(float x, float y, GLuint texture_gluint) {
 void set_map(char *filename) {
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
-        printf("bozo");
         return;
     }
     for (int i = 0; i < 7; i++) {
@@ -117,7 +120,13 @@ void entity_rectangle_alpha(float r, float g, float b, float alpha, float x, flo
     glRectf(x, 0, x + 300, 1100);
 }
 
+void entity_scalable_square(float r, float g, float b, float scale, float x, float y) {
+    glColor3f(r, g, b);
+    glRectf(x, y, x + scale, y + scale);
+}
+
 void entity_big_rectangle_alpha(float r, float g, float b, float alpha) {
+    // el respeto
     glColor4f(r, g, b, alpha);
     glRectf(0, 150, 1100, 550);
 }
@@ -208,6 +217,9 @@ void set_score() {
 void view_scores() {
     entity_score(200.0f, 1.0f, 0.0f, 0.0f, &character2);
     entity_score(600.0f, 0.0f, 0.0f, 1.0f, &character1);
+
+    //ma_engine_stop(&engine_character1);
+    //ma_engine_stop(&engine_character2);
 }
 
 void entity_button(float x, float y, GLuint texture_gluint) {
@@ -215,13 +227,13 @@ void entity_button(float x, float y, GLuint texture_gluint) {
     glColor3f(1.0f, 1.0f, 1.0f);
     glBegin(GL_QUADS);
     glTexCoord2f(0.0f, 0.0f);
-    glVertex2f(x - 250, y - 50);
+    glVertex2f(x - 400, y - 50);
     glTexCoord2f(1.0f, 0.0f);
-    glVertex2f(x + 250, y - 50);
+    glVertex2f(x + 400, y - 50);
     glTexCoord2f(1.0f, 1.0f);
-    glVertex2f(x + 250, y + 50);
+    glVertex2f(x + 400, y + 50);
     glTexCoord2f(0.0f, 1.0f);
-    glVertex2f(x - 250, y + 50);
+    glVertex2f(x - 400, y + 50);
     glEnd();
     glBindTexture(GL_TEXTURE_2D, 0);
 }
@@ -297,8 +309,8 @@ bool dequeue(struct queue_pointers *queue_bomb) {
 }
 
 void play_explosion_sound_effect(struct queue_node **queue_node) {
-    if ((*queue_node)->can_play_explosion_sound) {
-        ma_engine_play_sound(&engine_independent, "sounds/dry_fart.wav", NULL);
+    if (queue_node != NULL && (*queue_node)->can_play_explosion_sound) {
+        ma_sound_start(&sounds[EXPLOSION_SOUND]);
         (*queue_node)->can_play_explosion_sound = false;
     }
 }
@@ -347,21 +359,19 @@ void bomb_cleanup(struct queue_node *queue_bomb) {
     }
 }
 
-void play_death_sound_effect(ma_engine engine, struct character_info **character) {
+void play_death_sound_effect(struct character_info **character) {
     if ((*character)->can_play_death_sound) {
-        ma_engine_play_sound(&engine, "sounds/clash-royale-king-laugh.wav", NULL);
+        ma_sound_start(&sounds[DEATH_SOUND]);
         (*character)->can_play_death_sound = false;
     }
 }
 
-void death_detection(ma_engine engine, struct character_info *character) {
+void death_detection(struct character_info *character) {
     int character_x = (int) truncf(character->x / 100);
     int character_y = (int) truncf(character->y / 100);
     if (map_data[character_y][character_x] == 3 && !character->died) {
-        play_death_sound_effect(engine, &character);
+        play_death_sound_effect(&character);
         character->died = true;
-        character->x = 9999.0f;
-        character->y = 9999.0f;
         score_timer = time(NULL) + 3;
     }
 }
@@ -422,7 +432,6 @@ GLuint loadTexture(const char *filename) {
     int width, height, channels;
     unsigned char *pixel_data = stbi_load(filename, &width, &height, &channels, 0);
     if (!pixel_data) {
-        printf("nie ma tekstury\n");
         return 0;
     }
 
@@ -448,22 +457,18 @@ void key_start_movement_character1(int key, int miceX, int miceY) {
             case GLUT_KEY_UP:
                 character1.moving_up = true;
                 texture[7] = loadTexture("graphics/block_beaver_blue_back.png");
-                printf("Going up\n");
                 break;
             case GLUT_KEY_DOWN:
                 character1.moving_down = true;
                 texture[7] = loadTexture("graphics/block_beaver_blue_front.png");
-                printf("Going down\n");
                 break;
             case GLUT_KEY_RIGHT:
                 character1.moving_right = true;
                 texture[7] = loadTexture("graphics/block_beaver_blue_right.png");
-                printf("Going right\n");
                 break;
             case GLUT_KEY_LEFT:
                 character1.moving_left = true;
                 texture[7] = loadTexture("graphics/block_beaver_blue_left.png");
-                printf("Going left\n");
                 break;
             default:
                 break;
@@ -476,19 +481,15 @@ void key_stop_movement_character1(int key, int miceX, int miceY) {
         switch (key) {
             case GLUT_KEY_UP:
                 character1.moving_up = false;
-                printf("Stopped going up\n");
                 break;
             case GLUT_KEY_DOWN:
                 character1.moving_down = false;
-                printf("Stopped going down\n");
                 break;
             case GLUT_KEY_RIGHT:
                 character1.moving_right = false;
-                printf("Stopped going right\n");
                 break;
             case GLUT_KEY_LEFT:
                 character1.moving_left = false;
-                printf("Stopped going left\n");
                 break;
             default:
                 break;
@@ -502,49 +503,45 @@ void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
             case 'w':
                 character2.moving_up = true;
                 texture[8] = loadTexture("graphics/block_beaver_red_back.png");
-                printf("Going up\n");
                 break;
             case 's':
                 character2.moving_down = true;
                 texture[8] = loadTexture("graphics/block_beaver_red_front.png");
-                printf("Going down\n");
                 break;
             case 'd':
                 character2.moving_right = true;
                 texture[8] = loadTexture("graphics/block_beaver_red_right.png");
-                printf("Going right\n");
                 break;
             case 'a':
                 character2.moving_left = true;
                 texture[8] = loadTexture("graphics/block_beaver_red_left.png");
-                printf("Going left\n");
                 break;
             case 'z':
-                if (map_data[(int) truncf(character2.y / 100)][(int) truncf(character2.x / 100)] == 0 && !character2.died) {
+                if (map_data[(int) truncf(character2.y / 100)][(int) truncf(character2.x / 100)] == 0 &&
+                    !character2.died) {
                     if (character1.ability_to_bomb || character2.ability_to_bomb) {
                         enqueue(&queue, truncf(character2.x / 100), truncf(character2.y / 100),
                                 (int) truncf(character2.x / 100),
                                 (int) truncf(character2.y / 100), time(NULL));
-                        ma_engine_play_sound(&engine_character2, "sounds/jixaw-metal-pipe-falling-sound.wav", NULL);
+                        ma_sound_start(&sounds[PLACE_BOMB_SOUND]);
                     }
-                    printf("bruh\n");
                 }
                 break;
             case '0':
-                if (map_data[(int) truncf(character1.y / 100)][(int) truncf(character1.x / 100)] == 0 && !character1.died) {
+                if (map_data[(int) truncf(character1.y / 100)][(int) truncf(character1.x / 100)] == 0 &&
+                    !character1.died) {
                     if (character1.ability_to_bomb || character2.ability_to_bomb) {
                         enqueue(&queue, truncf(character1.x / 100), truncf(character1.y / 100),
                                 (int) truncf(character1.x / 100),
                                 (int) truncf(character1.y / 100), time(NULL));
-                        ma_engine_play_sound(&engine_character2, "sounds/jixaw-metal-pipe-falling-sound.wav", NULL);
+                        ma_sound_start(&sounds[PLACE_BOMB_SOUND]);
                     }
-                    printf("bruh\n");
                 }
                 break;
             case 27:
-                if(!paused) {
+                if (!paused) {
                     paused = true;
-                    ma_engine_play_sound(&engine_independent, "sounds/21_3.wav", NULL);
+                    ma_sound_start(&sounds[PAUSE_SOUND]);
                 }
                 break;
             default:
@@ -558,19 +555,15 @@ void key_stop_movement_character2(unsigned char key, int miceX, int miceY) {
         switch (key) {
             case 'w':
                 character2.moving_up = false;
-                printf("Stopped going up\n");
                 break;
             case 's':
                 character2.moving_down = false;
-                printf("Stopped going down\n");
                 break;
             case 'd':
                 character2.moving_right = false;
-                printf("Stopped going right\n");
                 break;
             case 'a':
                 character2.moving_left = false;
-                printf("Stopped going left\n");
                 break;
             default:
                 break;
@@ -583,7 +576,7 @@ void draw_map() {
     for (int i = 0; i < WINDOW_HEIGHT / 100; i++) {
         for (int j = 0; j < WINDOW_WIDTH / 100; j++) {
             if (map_data[i][j] == 1) {
-                entity_square(sumx, sumy, texture[12]);
+                entity_square(sumx, sumy, texture[rand()%2+12]);
             }
             sumx += 100.0f;
         }
@@ -594,56 +587,55 @@ void draw_map() {
 
 void mouse(int button, int state, int miceX, int miceY) {
     if (button == GLUT_LEFT_BUTTON && Menus == MAIN_MANU && state == GLUT_DOWN) {
-        if (miceX <= 800 && miceX >= 300 && miceY <= 400 && miceY >= 300) {
+        if (miceX <= 950 && miceX >= 150 && miceY <= 400 && miceY >= 300) {
             Menus = GAME;
-            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
+            ma_sound_start(&sounds[MENU_CLICK_SOUND]);
         }
-        if (miceX <= 800 && miceX >= 300 && miceY <= 525 && miceY >= 425) {
+        if (miceX <= 950 && miceX >= 150 && miceY <= 525 && miceY >= 425) {
             Menus = OPTIONS;
-            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
+            ma_sound_start(&sounds[MENU_CLICK_SOUND]);
         }
-        if (miceX <= 800 && miceX >= 300 && miceY <= 650 && miceY >= 550) {
+        if (miceX <= 950 && miceX >= 150 && miceY <= 650 && miceY >= 550) {
             exit(0);
         }
     }
     if (button == GLUT_LEFT_BUTTON && Menus == OPTIONS && state == GLUT_DOWN) {
-        if (miceX <= 800 && miceX >= 300 && miceY <= 200 && miceY >= 100) {
-            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
-            printf("map1\n");
+        if (miceX <= 950 && miceX >= 150 && miceY <= 200 && miceY >= 100) {
+            ma_sound_start(&sounds[MENU_CLICK_SOUND]);
             set_map("maps/map1.txt");
             glNewList(mapDisplayList, GL_COMPILE);
             draw_map();
             glEndList();
         }
-        if (miceX <= 800 && miceX >= 300 && miceY <= 325 && miceY >= 225) {
-            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
-            printf("map2\n");
+        if (miceX <= 950 && miceX >= 150 && miceY <= 325 && miceY >= 225) {
+            ma_sound_start(&sounds[MENU_CLICK_SOUND]);
             set_map("maps/map2.txt");
             glNewList(mapDisplayList, GL_COMPILE);
             draw_map();
             glEndList();
         }
-        if (miceX <= 800 && miceX >= 300 && miceY <= 450 && miceY >= 350) {
-            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
-            printf("map3\n");
+        if (miceX <= 950 && miceX >= 150 && miceY <= 450 && miceY >= 350) {
+            ma_sound_start(&sounds[MENU_CLICK_SOUND]);
             set_map("maps/map3.txt");
             glNewList(mapDisplayList, GL_COMPILE);
             draw_map();
             glEndList();
         }
-        if (miceX <= 800 && miceX >= 300 && miceY <= 600 && miceY >= 500) {
-            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
+        if (miceX <= 950 && miceX >= 150 && miceY <= 600 && miceY >= 500) {
+            ma_sound_start(&sounds[MENU_CLICK_SOUND]);
             Menus = MAIN_MANU;
         }
     }
     if (button == GLUT_LEFT_BUTTON && Menus == GAME && state == GLUT_DOWN) {
-        if (paused && miceX <= 750 && miceX >= 350 && miceY <= 350 && miceY >= 275) {
-            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
+        if (paused && miceX <= 750 && miceX >= 350 && miceY <= 320 && miceY >= 230) {
+            ma_sound_start(&sounds[MENU_CLICK_SOUND]);
             paused = false;
         }
-        if (paused && miceX <= 750 && miceX >= 350 && miceY <= 500 && miceY >= 375) {
-            ma_engine_play_sound(&engine_independent, "sounds/vine-boom.wav", NULL);
+        if (paused && miceX <= 750 && miceX >= 350 && miceY <= 490 && miceY >= 280) {
+            ma_sound_start(&sounds[MENU_CLICK_SOUND]);
             proceed = true;
+            character1.score = 0;
+            character2.score = 0;
             restart_game();
             restart_map_data();
             paused = false;
@@ -731,8 +723,15 @@ void bombing(struct queue_pointers *queue_bomb) {
     }
 }
 
+void yeet_bober(struct character_info *character) {
+    if (character->died) {
+        character->x = 9999.0f;
+        character->y = 9999.0f;
+    }
+}
+
 void game() {
-    entity_background(texture[15]);
+    entity_background(texture[16]);
     bombing(&queue);
     player_hitbox_detection(&character1, &character2);
     draw_crates();
@@ -741,16 +740,18 @@ void game() {
     entity_square(character2.x - 50, character2.y - 50, texture[8]);
     update_movement(&character1, &character2);
     update_movement(&character2, &character1);
-
-    death_detection(engine_character1, &character1);
-    death_detection(engine_character2, &character2);
+    death_detection(&character1);
+    death_detection(&character2);
     glCallList(mapDisplayList);
     if (paused) {
-        entity_pause(275, 225, texture[13]);
+        entity_pause(275, 225, texture[14
+        ]);
     }
     if (character1.died || character2.died) {
         character1.ability_to_bomb = false;
         character2.ability_to_bomb = false;
+        yeet_bober(&character1);
+        yeet_bober(&character2);
         if (!proceed) {
             set_score();
         }
@@ -768,14 +769,14 @@ void game() {
 }
 
 void main_menu() {
-    entity_background(texture[14]);
+    entity_background(texture[15]);
     entity_button(550, 350, texture[0]);
     entity_button(550, 475, texture[1]);
     entity_button(550, 600, texture[2]);
 }
 
 void options() {
-    entity_background(texture[14]);
+    entity_background(texture[15]);
     entity_button(550, 150, texture[3]);
     entity_button(550, 275, texture[4]);
     entity_button(550, 400, texture[5]);
@@ -808,9 +809,14 @@ void init() {
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    ma_engine_init(NULL, &engine_character1);
-    ma_engine_init(NULL, &engine_character2);
-    ma_engine_init(NULL, &engine_independent);
+    ma_engine_init(NULL, &engine);
+
+    ma_sound_init_from_file(&engine, "sounds/sound_place_bomb.wav", 0, NULL, NULL,
+                            &sounds[PLACE_BOMB_SOUND]);
+    ma_sound_init_from_file(&engine, "sounds/sound_menu_click.wav", 0, NULL, NULL, &sounds[MENU_CLICK_SOUND]);
+    ma_sound_init_from_file(&engine, "sounds/sound_explosion.wav", 0, NULL, NULL, &sounds[EXPLOSION_SOUND]);
+    ma_sound_init_from_file(&engine, "sounds/sound_death.wav", 0, NULL, NULL, &sounds[DEATH_SOUND]);
+    ma_sound_init_from_file(&engine, "sounds/sound_pause.wav", 0, NULL, NULL, &sounds[PAUSE_SOUND]);
 
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
     glEnable(GL_BLEND);
@@ -825,22 +831,7 @@ void init() {
     glEndList();
 }
 
-int main(int argc, char **argv) {
-    character1.x = 950.0f;
-    character1.y = 550.0f;
-    character2.x = 150.0f;
-    character2.y = 150.0f;
-    character1.ability_to_bomb = true;
-    character2.ability_to_bomb = true;
-    character1.can_play_death_sound = true;
-    character2.can_play_death_sound = true;
-
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
-    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    glutInitWindowPosition(0, 0);
-    glutCreateWindow("Boberman");
-
+void textures_init() {
     texture[0] = loadTexture("graphics/button_start_game.png");
     texture[1] = loadTexture("graphics/button_options.png");
     texture[2] = loadTexture("graphics/button_exit.png");
@@ -855,10 +846,35 @@ int main(int argc, char **argv) {
     texture[10] = loadTexture("graphics/block_crate.png");
     texture[11] = loadTexture("graphics/block_fire.png");
     texture[12] = loadTexture("graphics/block_wall.png");
+    texture[13] = loadTexture("graphics/block_wall_alt.png");
 
-    texture[13] = loadTexture("graphics/ingame_pause.png");
-    texture[14] = loadTexture("graphics/background_main_menu.png");
-    texture[15] = loadTexture("graphics/background_game.png");
+    texture[14] = loadTexture("graphics/ingame_pause.png");
+    texture[15] = loadTexture("graphics/background_main_menu.png");
+    texture[16] = loadTexture("graphics/background_game.png");
+}
+
+void character_init() {
+    character1.x = 950.0f;
+    character1.y = 550.0f;
+    character2.x = 150.0f;
+    character2.y = 150.0f;
+    character1.ability_to_bomb = true;
+    character2.ability_to_bomb = true;
+    character1.can_play_death_sound = true;
+    character2.can_play_death_sound = true;
+
+}
+
+int main(int argc, char **argv) {
+    srand(time(NULL));
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+    glutInitWindowPosition(0, 0);
+    glutCreateWindow("Boberman");
+    character_init();
+    textures_init();
     init();
 
     glutDisplayFunc(display);
@@ -870,8 +886,7 @@ int main(int argc, char **argv) {
     glutKeyboardUpFunc(key_stop_movement_character2);
 
     glutMainLoop();
-    ma_engine_uninit(&engine_character1);
-    ma_engine_uninit(&engine_character2);
-    ma_engine_uninit(&engine_independent);
+    ma_engine_uninit(&engine);
+    ma_sound_uninit(sounds);
     return 0;
 }
