@@ -11,4 +11,4 @@ find_package(OpenGL REQUIRED)
 
 add_executable(projekt main.c)
 
-target_link_libraries(projekt ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES}  libfreeglut.a)
+target_link_libraries(projekt ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES} libfreeglut.a)
