@@ -1,0 +1,1551 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "https://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="pl">
+<head>
+<meta http-equiv="Content-Type" content="text/xhtml;charset=UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=11"/>
+<meta name="generator" content="Doxygen 1.11.0"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>Bomberman: Dokumentacja pliku main.c</title>
+<link href="tabs.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="jquery.js"></script>
+<script type="text/javascript" src="dynsections.js"></script>
+<script type="text/javascript" src="clipboard.js"></script>
+<link href="navtree.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="resize.js"></script>
+<script type="text/javascript" src="cookie.js"></script>
+<link href="search/search.css" rel="stylesheet" type="text/css"/>
+<script type="text/javascript" src="search/searchdata.js"></script>
+<script type="text/javascript" src="search/search.js"></script>
+<link href="doxygen.css" rel="stylesheet" type="text/css" />
+</head>
+<body>
+<div id="top"><!-- do not remove this div, it is closed by doxygen! -->
+<div id="titlearea">
+<table cellspacing="0" cellpadding="0">
+ <tbody>
+ <tr id="projectrow">
+  <td id="projectalign">
+   <div id="projectname">Bomberman
+   </div>
+  </td>
+ </tr>
+ </tbody>
+</table>
+</div>
+<!-- end header part -->
+<!-- Wygenerowano za pomocą Doxygen 1.11.0 -->
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+var searchBox = new SearchBox("searchBox", "search/",'.html');
+/* @license-end */
+</script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() { codefold.init(0); });
+/* @license-end */
+</script>
+<script type="text/javascript" src="menudata.js"></script>
+<script type="text/javascript" src="menu.js"></script>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function() {
+  initMenu('',true,false,'search.php','Szukaj',false);
+  $(function() { init_search(); });
+});
+/* @license-end */
+</script>
+<div id="main-nav"></div>
+<script type="text/javascript">
+/* @license magnet:?xt=urn:btih:d3d9a9a6595521f9666a5e94cc830dab83b65699&amp;dn=expat.txt MIT */
+$(function(){ initResizable(false); });
+/* @license-end */
+</script>
+<!-- window showing the filter options -->
+<div id="MSearchSelectWindow"
+     onmouseover="return searchBox.OnSearchSelectShow()"
+     onmouseout="return searchBox.OnSearchSelectHide()"
+     onkeydown="return searchBox.OnSearchSelectKey(event)">
+</div>
+
+<!-- iframe showing the search results (closed by default) -->
+<div id="MSearchResultsWindow">
+<div id="MSearchResults">
+<div class="SRPage">
+<div id="SRIndex">
+<div id="SRResults"></div>
+<div class="SRStatus" id="Loading">Wczytywanie...</div>
+<div class="SRStatus" id="Searching">Szukanie...</div>
+<div class="SRStatus" id="NoMatches">Brak dopasowań</div>
+</div>
+</div>
+</div>
+</div>
+
+</div><!-- top -->
+<div id="doc-content">
+<div class="header">
+  <div class="summary">
+<a href="#nested-classes">Komponenty</a> &#124;
+<a href="#define-members">Definicje</a> &#124;
+<a href="#enum-members">Wyliczenia</a> &#124;
+<a href="#func-members">Funkcje</a> &#124;
+<a href="#var-members">Zmienne</a>  </div>
+  <div class="headertitle"><div class="title">Dokumentacja pliku main.c</div></div>
+</div><!--header-->
+<div class="contents">
+<div class="textblock"><code>#include &lt;stdio.h&gt;</code><br />
+<code>#include &lt;GL/gl.h&gt;</code><br />
+<code>#include &lt;GL/glut.h&gt;</code><br />
+<code>#include &lt;GL/freeglut.h&gt;</code><br />
+<code>#include &lt;math.h&gt;</code><br />
+<code>#include &lt;stdbool.h&gt;</code><br />
+<code>#include &lt;time.h&gt;</code><br />
+<code>#include &quot;libs/stb_image.h&quot;</code><br />
+<code>#include &quot;libs/miniaudio.h&quot;</code><br />
+</div><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="nested-classes" name="nested-classes"></a>
+Komponenty</h2></td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structcharacter__info.html">character_info</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structqueue__node.html">queue_node</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:"><td class="memItemLeft" align="right" valign="top">struct &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="structqueue__pointers.html">queue_pointers</a></td></tr>
+<tr class="separator:"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="define-members" name="define-members"></a>
+Definicje</h2></td></tr>
+<tr class="memitem:a18372412ad2fc3ce1e3240b3cf0efe78" id="r_a18372412ad2fc3ce1e3240b3cf0efe78"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a18372412ad2fc3ce1e3240b3cf0efe78">STB_IMAGE_IMPLEMENTATION</a></td></tr>
+<tr class="separator:a18372412ad2fc3ce1e3240b3cf0efe78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:abf77f70dc931f91a9f09e7b54d8278f5" id="r_abf77f70dc931f91a9f09e7b54d8278f5"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#abf77f70dc931f91a9f09e7b54d8278f5">MINIAUDIO_IMPLEMENTATION</a></td></tr>
+<tr class="separator:abf77f70dc931f91a9f09e7b54d8278f5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a498d9f026138406895e9a34b504ac6a6" id="r_a498d9f026138406895e9a34b504ac6a6"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a498d9f026138406895e9a34b504ac6a6">WINDOW_WIDTH</a>&#160;&#160;&#160;1100</td></tr>
+<tr class="separator:a498d9f026138406895e9a34b504ac6a6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a5473cf64fa979b48335079c99532e243" id="r_a5473cf64fa979b48335079c99532e243"><td class="memItemLeft" align="right" valign="top">#define&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5473cf64fa979b48335079c99532e243">WINDOW_HEIGHT</a>&#160;&#160;&#160;700</td></tr>
+<tr class="separator:a5473cf64fa979b48335079c99532e243"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="enum-members" name="enum-members"></a>
+Wyliczenia</h2></td></tr>
+<tr class="memitem:ae67e4504bf422a42cfc4e09f5031ff68" id="r_ae67e4504bf422a42cfc4e09f5031ff68"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68">Menus</a> { <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68ad50cf309d7568040619ed26ee6835a84">GAME</a>
+, <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68a1b20f1b4adb6ff9778b284fb46f6f99d">OPTIONS</a>
+, <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68a78258cb525a1829626fdfa703786e2b7">MAIN_MANU</a>
+ }</td></tr>
+<tr class="separator:ae67e4504bf422a42cfc4e09f5031ff68"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a712d9f62d83f99ab38cc1c2190341e92" id="r_a712d9f62d83f99ab38cc1c2190341e92"><td class="memItemLeft" align="right" valign="top">enum &#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a712d9f62d83f99ab38cc1c2190341e92">BombStatus</a> { <a class="el" href="#a712d9f62d83f99ab38cc1c2190341e92a095285ba8fb2e1f9cfb29c80546f06e4">BOMB</a>
+, <a class="el" href="#a712d9f62d83f99ab38cc1c2190341e92a46a8b7915191a24229de52ff2d7e5f7f">EXPLODING</a>
+, <a class="el" href="#a712d9f62d83f99ab38cc1c2190341e92a1500c613a0f9e87cd2e5a63451e5ab91">AFTERMATH</a>
+ }</td></tr>
+<tr class="separator:a712d9f62d83f99ab38cc1c2190341e92"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="func-members" name="func-members"></a>
+Funkcje</h2></td></tr>
+<tr class="memitem:ada2dfa2a2473899e0ec39b3ee9695cf1" id="r_ada2dfa2a2473899e0ec39b3ee9695cf1"><td class="memItemLeft" align="right" valign="top">GLuint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ada2dfa2a2473899e0ec39b3ee9695cf1">loadTexture</a> (const char *filename)</td></tr>
+<tr class="separator:ada2dfa2a2473899e0ec39b3ee9695cf1"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae2576edf21ad00141dab7de7c5a8b0bd" id="r_ae2576edf21ad00141dab7de7c5a8b0bd"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae2576edf21ad00141dab7de7c5a8b0bd">entity_button</a> (float x, float y, GLuint texture_gluint)</td></tr>
+<tr class="separator:ae2576edf21ad00141dab7de7c5a8b0bd"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a20ac19720f48609b6312634958850686" id="r_a20ac19720f48609b6312634958850686"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a20ac19720f48609b6312634958850686">entity_background</a> (GLuint texture_gluint)</td></tr>
+<tr class="separator:a20ac19720f48609b6312634958850686"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae5ab2ac22b7cab78153dce580affc7f6" id="r_ae5ab2ac22b7cab78153dce580affc7f6"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae5ab2ac22b7cab78153dce580affc7f6">entity_pause</a> (float x, float y, GLuint texture_gluint)</td></tr>
+<tr class="separator:ae5ab2ac22b7cab78153dce580affc7f6"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aed33aeebe10fc08b2503d92c3f6f0417" id="r_aed33aeebe10fc08b2503d92c3f6f0417"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aed33aeebe10fc08b2503d92c3f6f0417">entity_square</a> (float x, float y, GLuint texture_gluint)</td></tr>
+<tr class="separator:aed33aeebe10fc08b2503d92c3f6f0417"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8f3b02938af7e39fec628824c1a9f2ef" id="r_a8f3b02938af7e39fec628824c1a9f2ef"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8f3b02938af7e39fec628824c1a9f2ef">entity_rectangle_alpha</a> (float r, float g, float b, float alpha, float x, float y)</td></tr>
+<tr class="separator:a8f3b02938af7e39fec628824c1a9f2ef"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a98f882e4bfd2152e534dcf4b773f0cb3" id="r_a98f882e4bfd2152e534dcf4b773f0cb3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a98f882e4bfd2152e534dcf4b773f0cb3">entity_big_rectangle_alpha</a> (float r, float g, float b, float alpha)</td></tr>
+<tr class="separator:a98f882e4bfd2152e534dcf4b773f0cb3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a64606d3a08527d6532f9ca630028ff47" id="r_a64606d3a08527d6532f9ca630028ff47"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a64606d3a08527d6532f9ca630028ff47">entity_score</a> (float x, float r, float g, float b, struct <a class="el" href="structcharacter__info.html">character_info</a> *character)</td></tr>
+<tr class="separator:a64606d3a08527d6532f9ca630028ff47"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a75c3b6f74798d9fb2e187d74cad2d9e7" id="r_a75c3b6f74798d9fb2e187d74cad2d9e7"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a75c3b6f74798d9fb2e187d74cad2d9e7">entity_winner</a> (float r, float g, float b, const char *winner, float offset)</td></tr>
+<tr class="separator:a75c3b6f74798d9fb2e187d74cad2d9e7"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af3b759ce94c41df9a3a71235ef43241a" id="r_af3b759ce94c41df9a3a71235ef43241a"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af3b759ce94c41df9a3a71235ef43241a">set_map</a> (char *filename)</td></tr>
+<tr class="separator:af3b759ce94c41df9a3a71235ef43241a"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a65535586bba6a12bd4d84abb7f2433c3" id="r_a65535586bba6a12bd4d84abb7f2433c3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a65535586bba6a12bd4d84abb7f2433c3">restart_map_data</a> ()</td></tr>
+<tr class="separator:a65535586bba6a12bd4d84abb7f2433c3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af0b7d4a82847a74a1f2b46027636004f" id="r_af0b7d4a82847a74a1f2b46027636004f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af0b7d4a82847a74a1f2b46027636004f">restart_game</a> ()</td></tr>
+<tr class="separator:af0b7d4a82847a74a1f2b46027636004f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3cb13eecd215c1a3eba921f07c0a090d" id="r_a3cb13eecd215c1a3eba921f07c0a090d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3cb13eecd215c1a3eba921f07c0a090d">win</a> (struct <a class="el" href="structcharacter__info.html">character_info</a> *character, float r, float g, float b, const char *winner, float offset)</td></tr>
+<tr class="separator:a3cb13eecd215c1a3eba921f07c0a090d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a21a2fae36944eabbe9571487d24e2e15" id="r_a21a2fae36944eabbe9571487d24e2e15"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a21a2fae36944eabbe9571487d24e2e15">set_score</a> ()</td></tr>
+<tr class="separator:a21a2fae36944eabbe9571487d24e2e15"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af284d397e88e1ef7a99975aad97fa3eb" id="r_af284d397e88e1ef7a99975aad97fa3eb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af284d397e88e1ef7a99975aad97fa3eb">view_scores</a> ()</td></tr>
+<tr class="separator:af284d397e88e1ef7a99975aad97fa3eb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:addcac78da3978b34a30de6b586ad7afb" id="r_addcac78da3978b34a30de6b586ad7afb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#addcac78da3978b34a30de6b586ad7afb">enqueue</a> (struct <a class="el" href="structqueue__pointers.html">queue_pointers</a> *queue_bomb, float bomb_x, float bomb_y, int aftermath_x, int aftermath_y, unsigned long long bomb_timer)</td></tr>
+<tr class="separator:addcac78da3978b34a30de6b586ad7afb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:adfe22e3cf3b77e65f940a69393c601ac" id="r_adfe22e3cf3b77e65f940a69393c601ac"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#adfe22e3cf3b77e65f940a69393c601ac">dequeue</a> (struct <a class="el" href="structqueue__pointers.html">queue_pointers</a> *queue_bomb)</td></tr>
+<tr class="separator:adfe22e3cf3b77e65f940a69393c601ac"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:add937280ecda1f46342c7a9dde749a5b" id="r_add937280ecda1f46342c7a9dde749a5b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#add937280ecda1f46342c7a9dde749a5b">play_explosion_sound_effect</a> (struct <a class="el" href="structqueue__node.html">queue_node</a> **<a class="el" href="structqueue__node.html">queue_node</a>)</td></tr>
+<tr class="separator:add937280ecda1f46342c7a9dde749a5b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a866f6bf937fe3ba9cc9a268744de230c" id="r_a866f6bf937fe3ba9cc9a268744de230c"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a866f6bf937fe3ba9cc9a268744de230c">explosion</a> (struct <a class="el" href="structqueue__node.html">queue_node</a> *queue_bomb)</td></tr>
+<tr class="separator:a866f6bf937fe3ba9cc9a268744de230c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8aa110c89d030b33da704fbddd81b78d" id="r_a8aa110c89d030b33da704fbddd81b78d"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8aa110c89d030b33da704fbddd81b78d">bomb_cleanup</a> (struct <a class="el" href="structqueue__node.html">queue_node</a> *queue_bomb)</td></tr>
+<tr class="separator:a8aa110c89d030b33da704fbddd81b78d"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3f8b1339e52dbfeb733d29ac49814978" id="r_a3f8b1339e52dbfeb733d29ac49814978"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3f8b1339e52dbfeb733d29ac49814978">play_death_sound_effect</a> (struct <a class="el" href="structcharacter__info.html">character_info</a> **character)</td></tr>
+<tr class="separator:a3f8b1339e52dbfeb733d29ac49814978"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a7dab2609109d68bc1cef24322c50dfbb" id="r_a7dab2609109d68bc1cef24322c50dfbb"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a7dab2609109d68bc1cef24322c50dfbb">death_detection</a> (struct <a class="el" href="structcharacter__info.html">character_info</a> *character)</td></tr>
+<tr class="separator:a7dab2609109d68bc1cef24322c50dfbb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af371cab04f1947b5388afaebb6de36a5" id="r_af371cab04f1947b5388afaebb6de36a5"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af371cab04f1947b5388afaebb6de36a5">yeet_bober</a> (struct <a class="el" href="structcharacter__info.html">character_info</a> *character)</td></tr>
+<tr class="separator:af371cab04f1947b5388afaebb6de36a5"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a613c316b0cb5d0571264c2fa269af459" id="r_a613c316b0cb5d0571264c2fa269af459"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a613c316b0cb5d0571264c2fa269af459">player_hitbox_detection</a> (struct <a class="el" href="structcharacter__info.html">character_info</a> *characterr1, struct <a class="el" href="structcharacter__info.html">character_info</a> *characterr2)</td></tr>
+<tr class="separator:a613c316b0cb5d0571264c2fa269af459"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a988b5d2dea389d460c46f5d8133b0125" id="r_a988b5d2dea389d460c46f5d8133b0125"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a988b5d2dea389d460c46f5d8133b0125">hitbox_detection</a> (struct <a class="el" href="structcharacter__info.html">character_info</a> *character)</td></tr>
+<tr class="separator:a988b5d2dea389d460c46f5d8133b0125"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad2ee08fa8a0dc5fefa76ca45cb7910db" id="r_ad2ee08fa8a0dc5fefa76ca45cb7910db"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad2ee08fa8a0dc5fefa76ca45cb7910db">draw_map</a> ()</td></tr>
+<tr class="separator:ad2ee08fa8a0dc5fefa76ca45cb7910db"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a268e094a67c9c6a376ca286845482aa2" id="r_a268e094a67c9c6a376ca286845482aa2"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a268e094a67c9c6a376ca286845482aa2">draw_crates</a> ()</td></tr>
+<tr class="separator:a268e094a67c9c6a376ca286845482aa2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a94feb69a94adef81004cb627bfe9f34f" id="r_a94feb69a94adef81004cb627bfe9f34f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a94feb69a94adef81004cb627bfe9f34f">update_movement</a> (struct <a class="el" href="structcharacter__info.html">character_info</a> *characterr1, struct <a class="el" href="structcharacter__info.html">character_info</a> *characterr2)</td></tr>
+<tr class="separator:a94feb69a94adef81004cb627bfe9f34f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aeef23bd0c7fb21daa2db218f8b3ec807" id="r_aeef23bd0c7fb21daa2db218f8b3ec807"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aeef23bd0c7fb21daa2db218f8b3ec807">bombing</a> (struct <a class="el" href="structqueue__pointers.html">queue_pointers</a> *queue_bomb)</td></tr>
+<tr class="separator:aeef23bd0c7fb21daa2db218f8b3ec807"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9f1c87c7296779c4c895ca2b13ad2e3e" id="r_a9f1c87c7296779c4c895ca2b13ad2e3e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9f1c87c7296779c4c895ca2b13ad2e3e">game</a> ()</td></tr>
+<tr class="separator:a9f1c87c7296779c4c895ca2b13ad2e3e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a885611589f6294afada89fe88362e863" id="r_a885611589f6294afada89fe88362e863"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a885611589f6294afada89fe88362e863">main_menu</a> ()</td></tr>
+<tr class="separator:a885611589f6294afada89fe88362e863"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a644b5a41427a21cc7f03738c847f3a2b" id="r_a644b5a41427a21cc7f03738c847f3a2b"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a644b5a41427a21cc7f03738c847f3a2b">options</a> ()</td></tr>
+<tr class="separator:a644b5a41427a21cc7f03738c847f3a2b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1e5b20fed15743656bb6d2e6a6ea6269" id="r_a1e5b20fed15743656bb6d2e6a6ea6269"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1e5b20fed15743656bb6d2e6a6ea6269">display</a> ()</td></tr>
+<tr class="separator:a1e5b20fed15743656bb6d2e6a6ea6269"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a035a0c8c2e57998221e4be563feb7fa0" id="r_a035a0c8c2e57998221e4be563feb7fa0"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a035a0c8c2e57998221e4be563feb7fa0">key_start_movement_character1</a> (int key, int miceX, int miceY)</td></tr>
+<tr class="separator:a035a0c8c2e57998221e4be563feb7fa0"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a56f83d11f37a0bb1591d81117c6d472f" id="r_a56f83d11f37a0bb1591d81117c6d472f"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a56f83d11f37a0bb1591d81117c6d472f">key_stop_movement_character1</a> (int key, int miceX, int miceY)</td></tr>
+<tr class="separator:a56f83d11f37a0bb1591d81117c6d472f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1a9f8cc5f549b654fe6dee5a97285f0e" id="r_a1a9f8cc5f549b654fe6dee5a97285f0e"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1a9f8cc5f549b654fe6dee5a97285f0e">key_start_movement_character2</a> (unsigned char key, int miceX, int miceY)</td></tr>
+<tr class="separator:a1a9f8cc5f549b654fe6dee5a97285f0e"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae7b64f517986daaaad652a3d802ebaa3" id="r_ae7b64f517986daaaad652a3d802ebaa3"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae7b64f517986daaaad652a3d802ebaa3">key_stop_movement_character2</a> (unsigned char key, int miceX, int miceY)</td></tr>
+<tr class="separator:ae7b64f517986daaaad652a3d802ebaa3"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a93ad1128077ae39f5929b438ca8b2202" id="r_a93ad1128077ae39f5929b438ca8b2202"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a93ad1128077ae39f5929b438ca8b2202">mouse</a> (int button, int state, int miceX, int miceY)</td></tr>
+<tr class="separator:a93ad1128077ae39f5929b438ca8b2202"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a4632775cbb916f3275ce28a46dfd0c91" id="r_a4632775cbb916f3275ce28a46dfd0c91"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a4632775cbb916f3275ce28a46dfd0c91">textures_init</a> ()</td></tr>
+<tr class="separator:a4632775cbb916f3275ce28a46dfd0c91"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:aaccbeb2091cc75b52c70dc13fecafdbe" id="r_aaccbeb2091cc75b52c70dc13fecafdbe"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#aaccbeb2091cc75b52c70dc13fecafdbe">character_init</a> ()</td></tr>
+<tr class="separator:aaccbeb2091cc75b52c70dc13fecafdbe"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a02fd73d861ef2e4aabb38c0c9ff82947" id="r_a02fd73d861ef2e4aabb38c0c9ff82947"><td class="memItemLeft" align="right" valign="top">void&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a02fd73d861ef2e4aabb38c0c9ff82947">init</a> ()</td></tr>
+<tr class="separator:a02fd73d861ef2e4aabb38c0c9ff82947"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a3c04138a5bfe5d72780bb7e82a18e627" id="r_a3c04138a5bfe5d72780bb7e82a18e627"><td class="memItemLeft" align="right" valign="top">int&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a3c04138a5bfe5d72780bb7e82a18e627">main</a> (int argc, char **argv)</td></tr>
+<tr class="separator:a3c04138a5bfe5d72780bb7e82a18e627"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table><table class="memberdecls">
+<tr class="heading"><td colspan="2"><h2 class="groupheader"><a id="var-members" name="var-members"></a>
+Zmienne</h2></td></tr>
+<tr class="memitem:a5be7ade11d0c3e1c9a755ede76458f85" id="r_a5be7ade11d0c3e1c9a755ede76458f85"><td class="memItemLeft" align="right" valign="top">enum <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68">Menus</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a5be7ade11d0c3e1c9a755ede76458f85">Menus</a> = <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68a78258cb525a1829626fdfa703786e2b7">MAIN_MANU</a></td></tr>
+<tr class="separator:a5be7ade11d0c3e1c9a755ede76458f85"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae61292635a260c5276e1d1ef18cc9c3f" id="r_ae61292635a260c5276e1d1ef18cc9c3f"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcharacter__info.html">character_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae61292635a260c5276e1d1ef18cc9c3f">character1</a></td></tr>
+<tr class="separator:ae61292635a260c5276e1d1ef18cc9c3f"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b062574251ec95198fe7a5135fcf448" id="r_a8b062574251ec95198fe7a5135fcf448"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structcharacter__info.html">character_info</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8b062574251ec95198fe7a5135fcf448">character2</a></td></tr>
+<tr class="separator:a8b062574251ec95198fe7a5135fcf448"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a8b48c77dbac5f8d2e7913f795c624598" id="r_a8b48c77dbac5f8d2e7913f795c624598"><td class="memItemLeft" align="right" valign="top">struct <a class="el" href="structqueue__pointers.html">queue_pointers</a>&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a8b48c77dbac5f8d2e7913f795c624598">queue</a> = {NULL, NULL}</td></tr>
+<tr class="separator:a8b48c77dbac5f8d2e7913f795c624598"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6041216f4813c123c6eb8e11750118cb" id="r_a6041216f4813c123c6eb8e11750118cb"><td class="memItemLeft" align="right" valign="top">unsigned long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6041216f4813c123c6eb8e11750118cb">score_timer</a></td></tr>
+<tr class="separator:a6041216f4813c123c6eb8e11750118cb"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a296a8491cf20aa5f3d4406432f857d1c" id="r_a296a8491cf20aa5f3d4406432f857d1c"><td class="memItemLeft" align="right" valign="top">unsigned long long&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a296a8491cf20aa5f3d4406432f857d1c">paused_time</a></td></tr>
+<tr class="separator:a296a8491cf20aa5f3d4406432f857d1c"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a26e302558819c8850c96ac6a9d056e77" id="r_a26e302558819c8850c96ac6a9d056e77"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a26e302558819c8850c96ac6a9d056e77">proceed</a> = false</td></tr>
+<tr class="separator:a26e302558819c8850c96ac6a9d056e77"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a1656129c4a4fd8809254194f08f0ac70" id="r_a1656129c4a4fd8809254194f08f0ac70"><td class="memItemLeft" align="right" valign="top">bool&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a1656129c4a4fd8809254194f08f0ac70">paused</a> = false</td></tr>
+<tr class="separator:a1656129c4a4fd8809254194f08f0ac70"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:af6825ca3438ec3678dbaa8ab2f66aa29" id="r_af6825ca3438ec3678dbaa8ab2f66aa29"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#af6825ca3438ec3678dbaa8ab2f66aa29">map_data</a> [7][11]</td></tr>
+<tr class="separator:af6825ca3438ec3678dbaa8ab2f66aa29"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ae6652d0fe8e12c1b732f03e1576ddb0b" id="r_ae6652d0fe8e12c1b732f03e1576ddb0b"><td class="memItemLeft" align="right" valign="top">char&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ae6652d0fe8e12c1b732f03e1576ddb0b">original_map_data</a> [7][11]</td></tr>
+<tr class="separator:ae6652d0fe8e12c1b732f03e1576ddb0b"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:afb6652598efafa53d4642e9506eb40b4" id="r_afb6652598efafa53d4642e9506eb40b4"><td class="memItemLeft" align="right" valign="top">GLuint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#afb6652598efafa53d4642e9506eb40b4">mapDisplayList</a></td></tr>
+<tr class="separator:afb6652598efafa53d4642e9506eb40b4"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:ad953b67f31b189347ca108ee3bf8df78" id="r_ad953b67f31b189347ca108ee3bf8df78"><td class="memItemLeft" align="right" valign="top">GLuint&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#ad953b67f31b189347ca108ee3bf8df78">texture</a> [17]</td></tr>
+<tr class="separator:ad953b67f31b189347ca108ee3bf8df78"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a6d55100acc372768a97cedc2adf819ca" id="r_a6d55100acc372768a97cedc2adf819ca"><td class="memItemLeft" align="right" valign="top">ma_sound&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a6d55100acc372768a97cedc2adf819ca">sounds</a> [5]</td></tr>
+<tr class="separator:a6d55100acc372768a97cedc2adf819ca"><td class="memSeparator" colspan="2">&#160;</td></tr>
+<tr class="memitem:a9dd63150de1598d744144a2d8e750fc2" id="r_a9dd63150de1598d744144a2d8e750fc2"><td class="memItemLeft" align="right" valign="top">ma_engine&#160;</td><td class="memItemRight" valign="bottom"><a class="el" href="#a9dd63150de1598d744144a2d8e750fc2">engine</a></td></tr>
+<tr class="separator:a9dd63150de1598d744144a2d8e750fc2"><td class="memSeparator" colspan="2">&#160;</td></tr>
+</table>
+<h2 class="groupheader">Dokumentacja definicji</h2>
+<a id="abf77f70dc931f91a9f09e7b54d8278f5" name="abf77f70dc931f91a9f09e7b54d8278f5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#abf77f70dc931f91a9f09e7b54d8278f5">&#9670;&#160;</a></span>MINIAUDIO_IMPLEMENTATION</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define MINIAUDIO_IMPLEMENTATION</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a18372412ad2fc3ce1e3240b3cf0efe78" name="a18372412ad2fc3ce1e3240b3cf0efe78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a18372412ad2fc3ce1e3240b3cf0efe78">&#9670;&#160;</a></span>STB_IMAGE_IMPLEMENTATION</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define STB_IMAGE_IMPLEMENTATION</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+
+</div>
+</div>
+<a id="a5473cf64fa979b48335079c99532e243" name="a5473cf64fa979b48335079c99532e243"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5473cf64fa979b48335079c99532e243">&#9670;&#160;</a></span>WINDOW_HEIGHT</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WINDOW_HEIGHT&#160;&#160;&#160;700</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Wysokość okna gry. </p>
+
+</div>
+</div>
+<a id="a498d9f026138406895e9a34b504ac6a6" name="a498d9f026138406895e9a34b504ac6a6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a498d9f026138406895e9a34b504ac6a6">&#9670;&#160;</a></span>WINDOW_WIDTH</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">#define WINDOW_WIDTH&#160;&#160;&#160;1100</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Szerokość okna gry. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentacja typów wyliczanych</h2>
+<a id="a712d9f62d83f99ab38cc1c2190341e92" name="a712d9f62d83f99ab38cc1c2190341e92"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a712d9f62d83f99ab38cc1c2190341e92">&#9670;&#160;</a></span>BombStatus</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#a712d9f62d83f99ab38cc1c2190341e92">BombStatus</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Typ wyliczeniowy mówiący, w jakim stanie bomby jest aktualnie bomba. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Wartości wyliczeń</th></tr><tr><td class="fieldname"><a id="a712d9f62d83f99ab38cc1c2190341e92a095285ba8fb2e1f9cfb29c80546f06e4" name="a712d9f62d83f99ab38cc1c2190341e92a095285ba8fb2e1f9cfb29c80546f06e4"></a>BOMB&#160;</td><td class="fielddoc"><p>Bomba została podłożona i nie wybuchła. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a712d9f62d83f99ab38cc1c2190341e92a46a8b7915191a24229de52ff2d7e5f7f" name="a712d9f62d83f99ab38cc1c2190341e92a46a8b7915191a24229de52ff2d7e5f7f"></a>EXPLODING&#160;</td><td class="fielddoc"><p>Bomba jest w trakcie wybuchania. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="a712d9f62d83f99ab38cc1c2190341e92a1500c613a0f9e87cd2e5a63451e5ab91" name="a712d9f62d83f99ab38cc1c2190341e92a1500c613a0f9e87cd2e5a63451e5ab91"></a>AFTERMATH&#160;</td><td class="fielddoc"><p>Bomba już wybuchła. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<a id="ae67e4504bf422a42cfc4e09f5031ff68" name="ae67e4504bf422a42cfc4e09f5031ff68"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae67e4504bf422a42cfc4e09f5031ff68">&#9670;&#160;</a></span>Menus</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68">Menus</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Typ wyliczeniowy mówiący, w którym menu teraz jesteśmy. </p>
+<table class="fieldtable">
+<tr><th colspan="2">Wartości wyliczeń</th></tr><tr><td class="fieldname"><a id="ae67e4504bf422a42cfc4e09f5031ff68ad50cf309d7568040619ed26ee6835a84" name="ae67e4504bf422a42cfc4e09f5031ff68ad50cf309d7568040619ed26ee6835a84"></a>GAME&#160;</td><td class="fielddoc"><p>Jesteśmy w grze. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae67e4504bf422a42cfc4e09f5031ff68a1b20f1b4adb6ff9778b284fb46f6f99d" name="ae67e4504bf422a42cfc4e09f5031ff68a1b20f1b4adb6ff9778b284fb46f6f99d"></a>OPTIONS&#160;</td><td class="fielddoc"><p>Jesteśmy w opcjach. </p>
+</td></tr>
+<tr><td class="fieldname"><a id="ae67e4504bf422a42cfc4e09f5031ff68a78258cb525a1829626fdfa703786e2b7" name="ae67e4504bf422a42cfc4e09f5031ff68a78258cb525a1829626fdfa703786e2b7"></a>MAIN_MANU&#160;</td><td class="fielddoc"><p>Jesteśmy w menu głównym. </p>
+</td></tr>
+</table>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentacja funkcji</h2>
+<a id="a8aa110c89d030b33da704fbddd81b78d" name="a8aa110c89d030b33da704fbddd81b78d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8aa110c89d030b33da704fbddd81b78d">&#9670;&#160;</a></span>bomb_cleanup()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bomb_cleanup </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structqueue__node.html">queue_node</a> *</td>          <td class="paramname"><span class="paramname"><em>queue_bomb</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja bomb_cleanup ma za zadanie wyczyścić macierz map_data z ekslozji. </p>
+
+</div>
+</div>
+<a id="aeef23bd0c7fb21daa2db218f8b3ec807" name="aeef23bd0c7fb21daa2db218f8b3ec807"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aeef23bd0c7fb21daa2db218f8b3ec807">&#9670;&#160;</a></span>bombing()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void bombing </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structqueue__pointers.html">queue_pointers</a> *</td>          <td class="paramname"><span class="paramname"><em>queue_bomb</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja bombing służy do zajmowania się bombami. Funkcja ta będzie przechodzić przez kolejkę bomb i zależnie od wartości tych bomb, będzie wykonywać odpowiednie akcje, którymi są: rysowanie bomb, jeżeli nie minęła ok. 1 sekunda; eksplodować, jeżeli już minęła ta 1 sekunda; wyczyścić macierz map_data z pozostałości po wybuchu bomby. </p>
+
+</div>
+</div>
+<a id="aaccbeb2091cc75b52c70dc13fecafdbe" name="aaccbeb2091cc75b52c70dc13fecafdbe"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aaccbeb2091cc75b52c70dc13fecafdbe">&#9670;&#160;</a></span>character_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void character_init </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja character_init służy do ustawienia graczy w odpowiedznich pozycjach oraz ustawienia odpowiednich flag. </p>
+
+</div>
+</div>
+<a id="a7dab2609109d68bc1cef24322c50dfbb" name="a7dab2609109d68bc1cef24322c50dfbb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a7dab2609109d68bc1cef24322c50dfbb">&#9670;&#160;</a></span>death_detection()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void death_detection </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>character</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja death_detection ma za zadanie sprawdzić, czy gracz nie żyje. Funkcja ta przyjmuje jako parametr informacje o graczu. </p>
+
+</div>
+</div>
+<a id="adfe22e3cf3b77e65f940a69393c601ac" name="adfe22e3cf3b77e65f940a69393c601ac"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#adfe22e3cf3b77e65f940a69393c601ac">&#9670;&#160;</a></span>dequeue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void dequeue </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structqueue__pointers.html">queue_pointers</a> *</td>          <td class="paramname"><span class="paramname"><em>queue_bomb</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja dequeue zdejmuje najstarszą bombę która juz wybuchła i czyści pamięć po nim. Funkcja ta jest kluczowa dla poprawnego działania programu żeby nie doszło do wycieków pamięci. Jako argument funkcja przyjmuje wskaźniki wskazujące na początek i koniec kolejki. </p>
+
+</div>
+</div>
+<a id="a1e5b20fed15743656bb6d2e6a6ea6269" name="a1e5b20fed15743656bb6d2e6a6ea6269"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1e5b20fed15743656bb6d2e6a6ea6269">&#9670;&#160;</a></span>display()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void display </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja display jest to nasza funkcja znajdująca się w pętli głównej, jest odpowiedzialna za praktycznie wszystkie akcje związane z wyświetlaniem i faktyczną grą. Sama funkcja display ma za zadanie tylko wyczyścić ekran, przenieść nas do odpowiedniego menu i odświerzyć obraz. </p>
+
+</div>
+</div>
+<a id="a268e094a67c9c6a376ca286845482aa2" name="a268e094a67c9c6a376ca286845482aa2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a268e094a67c9c6a376ca286845482aa2">&#9670;&#160;</a></span>draw_crates()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void draw_crates </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja draw_map ma za zadanie narysowanie skrzynek na ekranie zgodnie z macierzą map_data. </p>
+
+</div>
+</div>
+<a id="ad2ee08fa8a0dc5fefa76ca45cb7910db" name="ad2ee08fa8a0dc5fefa76ca45cb7910db"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad2ee08fa8a0dc5fefa76ca45cb7910db">&#9670;&#160;</a></span>draw_map()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void draw_map </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja draw_map ma za zadanie narysowanie drzew na ekranie zgodnie z macierzą map_data. </p>
+
+</div>
+</div>
+<a id="addcac78da3978b34a30de6b586ad7afb" name="addcac78da3978b34a30de6b586ad7afb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#addcac78da3978b34a30de6b586ad7afb">&#9670;&#160;</a></span>enqueue()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void enqueue </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structqueue__pointers.html">queue_pointers</a> *</td>          <td class="paramname"><span class="paramname"><em>queue_bomb</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>bomb_x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>bomb_y</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>aftermath_x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>aftermath_y</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">unsigned long long</td>          <td class="paramname"><span class="paramname"><em>bomb_timer</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja enqueue dodaje nowy element do kolejki FIFO. Funkcja ta jest kluczowa do poprawnego działania bomb, funkcja ta zaalokuje nową pamięć dla nowego węzła, po czym do tego węzła przydzieli odpowiednie dane, które zostały podane to funkcji jako argumenty, argumenty te to: wskaźniki wskazujące na początek i koniec kolejki, koordynaty bomby w typie float, koordynaty bomby w typie int, oraz czas, który będzie wykorzystywany podczas wybuchów bomby. </p>
+
+</div>
+</div>
+<a id="a20ac19720f48609b6312634958850686" name="a20ac19720f48609b6312634958850686"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a20ac19720f48609b6312634958850686">&#9670;&#160;</a></span>entity_background()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void entity_background </td>
+          <td>(</td>
+          <td class="paramtype">GLuint</td>          <td class="paramname"><span class="paramname"><em>texture_gluint</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja entity_background, której zadaniem jest narysować prostokąt o rozmiarze okna gry i nadać mu tekturę. Jako argument funkcja przyjmuje teksturę. </p>
+
+</div>
+</div>
+<a id="a98f882e4bfd2152e534dcf4b773f0cb3" name="a98f882e4bfd2152e534dcf4b773f0cb3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a98f882e4bfd2152e534dcf4b773f0cb3">&#9670;&#160;</a></span>entity_big_rectangle_alpha()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void entity_big_rectangle_alpha </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>alpha</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja entity_big_rectangle_alpha, jej zadaniem jest narysowanie na ekranie podłużnego prostokąta o rozmiarach 1100 x 300, jako parametry funkcja przyjmuję: kolor RGB oraz alfę. </p>
+
+</div>
+</div>
+<a id="ae2576edf21ad00141dab7de7c5a8b0bd" name="ae2576edf21ad00141dab7de7c5a8b0bd"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae2576edf21ad00141dab7de7c5a8b0bd">&#9670;&#160;</a></span>entity_button()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void entity_button </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>y</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">GLuint</td>          <td class="paramname"><span class="paramname"><em>texture_gluint</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja entity_button, której zadaniem jest narysować prostokąt o rozmiarze 800 x 100 i nadać mu tekturę. Jako argument funkcja przyjmuje: koordynaty gdzie zostanie narysowany prostokąt oraz teksturę. </p>
+
+</div>
+</div>
+<a id="ae5ab2ac22b7cab78153dce580affc7f6" name="ae5ab2ac22b7cab78153dce580affc7f6"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae5ab2ac22b7cab78153dce580affc7f6">&#9670;&#160;</a></span>entity_pause()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void entity_pause </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>y</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">GLuint</td>          <td class="paramname"><span class="paramname"><em>texture_gluint</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja entity_pause, której zadaniem jest narysować prostokąt o rozmiarze 550 na 275 i nadać mu tekturę. Jako argument funkcja przyjmuje koordynaty gdzie ma zostać menu narysowane oraz teksturę. </p>
+
+</div>
+</div>
+<a id="a8f3b02938af7e39fec628824c1a9f2ef" name="a8f3b02938af7e39fec628824c1a9f2ef"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8f3b02938af7e39fec628824c1a9f2ef">&#9670;&#160;</a></span>entity_rectangle_alpha()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void entity_rectangle_alpha </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>alpha</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>y</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja entity_rectangle_alpha, jej zadaniem jest narysowanie na ekranie podłużnego prostokąta o rozmiarach 300 x 700, jako parametry funkcja przyjmuję: kolor RGB, alfę, oraz pozycję na osi X i Y. </p>
+
+</div>
+</div>
+<a id="a64606d3a08527d6532f9ca630028ff47" name="a64606d3a08527d6532f9ca630028ff47"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a64606d3a08527d6532f9ca630028ff47">&#9670;&#160;</a></span>entity_score()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void entity_score </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>character</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja entity_score, której zadaniem jest narysować dwa podłużne pionowe przezroczyste prostokąty, oraz na nich napisać wynik obydwu graczy. Jako parametry ta funkcja przyjmuje: pozycję, kolor RGB, oraz informację o graczu. </p>
+
+</div>
+</div>
+<a id="aed33aeebe10fc08b2503d92c3f6f0417" name="aed33aeebe10fc08b2503d92c3f6f0417"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#aed33aeebe10fc08b2503d92c3f6f0417">&#9670;&#160;</a></span>entity_square()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void entity_square </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>x</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>y</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">GLuint</td>          <td class="paramname"><span class="paramname"><em>texture_gluint</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja entity_square, której zadaniem jest narysować kwadrat i nadać mu tekturę. Jako argumenty przyjmuje pozycję gdzie ma zostać narysowany kwadrat oraz teksturę. </p>
+
+</div>
+</div>
+<a id="a75c3b6f74798d9fb2e187d74cad2d9e7" name="a75c3b6f74798d9fb2e187d74cad2d9e7"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a75c3b6f74798d9fb2e187d74cad2d9e7">&#9670;&#160;</a></span>entity_winner()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void entity_winner </td>
+          <td>(</td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>winner</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>offset</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja entity_score, której zadaniem jest narysować podłużny pionowy przezroczysty prostokąt, oraz na nim narysować napis. Funkcja jako paremtry przyjmuje: kolor RGB, napis oraz offset. </p>
+
+</div>
+</div>
+<a id="a866f6bf937fe3ba9cc9a268744de230c" name="a866f6bf937fe3ba9cc9a268744de230c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a866f6bf937fe3ba9cc9a268744de230c">&#9670;&#160;</a></span>explosion()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void explosion </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structqueue__node.html">queue_node</a> *</td>          <td class="paramname"><span class="paramname"><em>queue_bomb</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja explosion, która ma za zadanie narysować kule ognia eksplozji, oraz zmienić macierz map_data w taki sposób, żeby wejście w eksplozje powodowało śmierć. </p>
+
+</div>
+</div>
+<a id="a9f1c87c7296779c4c895ca2b13ad2e3e" name="a9f1c87c7296779c4c895ca2b13ad2e3e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9f1c87c7296779c4c895ca2b13ad2e3e">&#9670;&#160;</a></span>game()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void game </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja game jest wykorzystywana do stworzenia faktycznej gry. Funkcja ta odpowiada za ustawienie tła, logikę za bombami, kolizje graczy, narysowanie graczy, poruszanie się graczy, śmierci graczy, pauzowanie gry oraz radzenie sobie z akcjami, które mają nastąpic po śmierci gracza. </p>
+
+</div>
+</div>
+<a id="a988b5d2dea389d460c46f5d8133b0125" name="a988b5d2dea389d460c46f5d8133b0125"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a988b5d2dea389d460c46f5d8133b0125">&#9670;&#160;</a></span>hitbox_detection()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool hitbox_detection </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>character</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja hitbox_detection ma za zadanie sprawdzić, czy gracz jest w kolizji ze ścianą. Funkcja ta będzie brać pod uwagę tylko ściany wokół gracza. Funkcja przyjmuje jako argument informacje o graczu i zwraca wartość true, jeżeli jest kolizja lub false, jeżeli takiej nie ma. </p>
+
+</div>
+</div>
+<a id="a02fd73d861ef2e4aabb38c0c9ff82947" name="a02fd73d861ef2e4aabb38c0c9ff82947"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a02fd73d861ef2e4aabb38c0c9ff82947">&#9670;&#160;</a></span>init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void init </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja init., inicjalizuje resztę funkcji, które są potrzebne do dalszego działania programu, w szczególności dotyczących ustawianiu macierzy stanu, przestrzeni ortogonalnej. Włączaniu lub wyłączaniu "GL capabilities", dźwięków, i ustawianiu display lists. </p>
+
+</div>
+</div>
+<a id="a035a0c8c2e57998221e4be563feb7fa0" name="a035a0c8c2e57998221e4be563feb7fa0"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a035a0c8c2e57998221e4be563feb7fa0">&#9670;&#160;</a></span>key_start_movement_character1()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void key_start_movement_character1 </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>key</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceX</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceY</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja key_start_movement_character1 jest to funkcja zwrotna, która ma za zadanie zaimplementować poruszanie się postaci przy pomocy klawiatury dla pierwszego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora. Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze specialne jak np. INSERT. Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji. </p>
+
+</div>
+</div>
+<a id="a1a9f8cc5f549b654fe6dee5a97285f0e" name="a1a9f8cc5f549b654fe6dee5a97285f0e"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1a9f8cc5f549b654fe6dee5a97285f0e">&#9670;&#160;</a></span>key_start_movement_character2()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void key_start_movement_character2 </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char</td>          <td class="paramname"><span class="paramname"><em>key</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceX</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceY</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja key_start_movement_character2 jest to funkcja zwrotna, która ma za zadanie zaimplementować poruszanie się postaci przy pomocy klawiatury dla drugiego gracza oraz stawianie bomb dla obydwu graczy, ponieważ dla pierwszego gracza nie ma takiego klawisza specjalnego, które byłyby wygodny dla gracza poruszającego się na strzałkach, oraz pauzowania gry, ponieważ ESC nie jest. znakiem specjalnym. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora. Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze niespecjalne jak np. A. Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wymagana do poprawnego działania funkcji. </p>
+
+</div>
+</div>
+<a id="a56f83d11f37a0bb1591d81117c6d472f" name="a56f83d11f37a0bb1591d81117c6d472f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a56f83d11f37a0bb1591d81117c6d472f">&#9670;&#160;</a></span>key_stop_movement_character1()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void key_stop_movement_character1 </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>key</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceX</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceY</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja key_stop_movement_character1 jest to funkcja zwrotna, która ma za zadanie zaimplementować zatrzymywanie się postaci przy pomocy klawiatury dla pierwszego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora. Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze specialne jak np. INSERT. Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji. </p>
+
+</div>
+</div>
+<a id="ae7b64f517986daaaad652a3d802ebaa3" name="ae7b64f517986daaaad652a3d802ebaa3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae7b64f517986daaaad652a3d802ebaa3">&#9670;&#160;</a></span>key_stop_movement_character2()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void key_stop_movement_character2 </td>
+          <td>(</td>
+          <td class="paramtype">unsigned char</td>          <td class="paramname"><span class="paramname"><em>key</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceX</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceY</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja key_stop_movement_character2 jest to funkcja zwrotna, która ma za zadanie zaimplementować zatrzymywanie się postaci przy pomocy klawiatury dla drugiego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora. Funkcja ta jako klawisze które zostały naciśnięte przyjmuje tylko klawisze niespecialne jak np. A. Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji. </p>
+
+</div>
+</div>
+<a id="ada2dfa2a2473899e0ec39b3ee9695cf1" name="ada2dfa2a2473899e0ec39b3ee9695cf1"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ada2dfa2a2473899e0ec39b3ee9695cf1">&#9670;&#160;</a></span>loadTexture()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GLuint loadTexture </td>
+          <td>(</td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>filename</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja loadTexture służy do wczytywania tekstury z pliku .png i zwraca takową teksturę, funkcja przyjmuje jako argument ścieżkę do podanej tekstury, tekstury są przechowywane w folderze graphics i są rozszerzenia .png, przez co podawany argument będzie miał postać "graphics/texture.png". </p>
+
+</div>
+</div>
+<a id="a3c04138a5bfe5d72780bb7e82a18e627" name="a3c04138a5bfe5d72780bb7e82a18e627"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3c04138a5bfe5d72780bb7e82a18e627">&#9670;&#160;</a></span>main()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">int main </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>argc</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">char **</td>          <td class="paramname"><span class="paramname"><em>argv</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja main ustawia generator liczb pseudolosowych, inicializuje GLUT-a i wszystkie funkcje potrzebne do dalszego działania programu, tworzy okno, ustawia początkowe wartości dla postaci, ustawia głowną pętlę gry, i będzie reagować na wejścia z klawiatury i myszy, po czym odinicjalizuje silnik dźwięków i tablicę dźwięków. </p>
+
+</div>
+</div>
+<a id="a885611589f6294afada89fe88362e863" name="a885611589f6294afada89fe88362e863"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a885611589f6294afada89fe88362e863">&#9670;&#160;</a></span>main_menu()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void main_menu </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkja main_menu ma za zadanie wywoływanie funkcji, które zostaną wykorzystane do narysowania menu głównego. </p>
+
+</div>
+</div>
+<a id="a93ad1128077ae39f5929b438ca8b2202" name="a93ad1128077ae39f5929b438ca8b2202"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a93ad1128077ae39f5929b438ca8b2202">&#9670;&#160;</a></span>mouse()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void mouse </td>
+          <td>(</td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>button</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>state</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceX</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">int</td>          <td class="paramname"><span class="paramname"><em>miceY</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja mouse jest to funkcja zwrotna, która ma za zadanie zaimplementować operacje na myszy. Parametrami funkcji jest przycisk, który został naciśnięty, stan przycisku, oraz lokacja kursora, dzięki nimi można zaimplementować przyciski, które są wykorzystywane w funkcji do poruszania się pomiędzy menu lub wykonywania różnych akcji po naciśnięciu przycisku. </p>
+
+</div>
+</div>
+<a id="a644b5a41427a21cc7f03738c847f3a2b" name="a644b5a41427a21cc7f03738c847f3a2b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a644b5a41427a21cc7f03738c847f3a2b">&#9670;&#160;</a></span>options()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void options </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkja main_menu ma za zadanie wywoływanie funkcji, które zostaną wykorzystane do narysowania menu opcji. </p>
+
+</div>
+</div>
+<a id="a3f8b1339e52dbfeb733d29ac49814978" name="a3f8b1339e52dbfeb733d29ac49814978"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3f8b1339e52dbfeb733d29ac49814978">&#9670;&#160;</a></span>play_death_sound_effect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void play_death_sound_effect </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> **</td>          <td class="paramname"><span class="paramname"><em>character</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja play_death_sound_effect puszcza dźwięk śmierci gracza, ale tylko raz. Funkcja przyjmuje jako argument informacje o graczu. </p>
+
+</div>
+</div>
+<a id="add937280ecda1f46342c7a9dde749a5b" name="add937280ecda1f46342c7a9dde749a5b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#add937280ecda1f46342c7a9dde749a5b">&#9670;&#160;</a></span>play_explosion_sound_effect()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void play_explosion_sound_effect </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structqueue__node.html">queue_node</a> **</td>          <td class="paramname"><span class="paramname"><em>queue_node</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja play_explosion_sound_effect puszcza dźwięk eksplozji bomby, ale tylko raz. Funkcja przyjmuje jako argument aktualny węzeł kolejki. </p>
+
+</div>
+</div>
+<a id="a613c316b0cb5d0571264c2fa269af459" name="a613c316b0cb5d0571264c2fa269af459"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a613c316b0cb5d0571264c2fa269af459">&#9670;&#160;</a></span>player_hitbox_detection()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool player_hitbox_detection </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>characterr1</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>characterr2</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja player_hitbox_detection, jako argumenty przyjmuje informacje o pierwszym graczu i o drugim graczu. Funkcja ma za zadanie sprawdzać, czy gracze są w kolizji ze sobą i zwraca wartość true, jeżeli się kolidują lub false, jeżeli się nie kolidują. </p>
+
+</div>
+</div>
+<a id="af0b7d4a82847a74a1f2b46027636004f" name="af0b7d4a82847a74a1f2b46027636004f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af0b7d4a82847a74a1f2b46027636004f">&#9670;&#160;</a></span>restart_game()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void restart_game </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja restart_game ma za zadanie zresetować flagi postaci oraz ich pozycje na takie, jakie były na początku gry. </p>
+
+</div>
+</div>
+<a id="a65535586bba6a12bd4d84abb7f2433c3" name="a65535586bba6a12bd4d84abb7f2433c3"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a65535586bba6a12bd4d84abb7f2433c3">&#9670;&#160;</a></span>restart_map_data()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void restart_map_data </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja restart_map_data służy do zresetowania macierzy map_data, to tego jest wykorzystywana macierz original_map_data, która przechowuje nietknięte informacje dotyczące mapy. </p>
+
+</div>
+</div>
+<a id="af3b759ce94c41df9a3a71235ef43241a" name="af3b759ce94c41df9a3a71235ef43241a"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af3b759ce94c41df9a3a71235ef43241a">&#9670;&#160;</a></span>set_map()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void set_map </td>
+          <td>(</td>
+          <td class="paramtype">char *</td>          <td class="paramname"><span class="paramname"><em>filename</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja set_map przyjmuję jako argument ścieżkę do pliku tekstowego, który zawiera kombinacje numerów (0, 1 i 2), pliki znajdują się w folderze maps i mają rozszerzenie .txt przez co podawany argument będzie miał postać "maps/map.txt". Zadaniem funkcji jest zczytanie wartości z pliku tekstowego i zapisania ich do tablicy map_data i original_map_data. </p>
+
+</div>
+</div>
+<a id="a21a2fae36944eabbe9571487d24e2e15" name="a21a2fae36944eabbe9571487d24e2e15"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a21a2fae36944eabbe9571487d24e2e15">&#9670;&#160;</a></span>set_score()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void set_score </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja set_score ma za zadanie ustawić punkty obydwu graczy, jeżeli gracz pierwszy zginie, to do punktów drugiego gracza jest przydzielany 1 punkt, tak samo działa to dla śmierci drugiego gracza. Jeżeli obydwu graczy zginie, to od ich punktów jest odejmowany 1 punkt (efektem tego jest remis i niezwiększanie się punktów). Funkcja ta ma się wykonywać tylko raz, więc korzysta z flagi proceed. </p>
+
+</div>
+</div>
+<a id="a4632775cbb916f3275ce28a46dfd0c91" name="a4632775cbb916f3275ce28a46dfd0c91"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a4632775cbb916f3275ce28a46dfd0c91">&#9670;&#160;</a></span>textures_init()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void textures_init </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja texture_init której zadaniem jest wypełnić tablicę tekstur odpowiedznimi teksturami przy użyciu funkcji loadTexture która ładuje teksturę z pliku .png. </p>
+
+</div>
+</div>
+<a id="a94feb69a94adef81004cb627bfe9f34f" name="a94feb69a94adef81004cb627bfe9f34f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a94feb69a94adef81004cb627bfe9f34f">&#9670;&#160;</a></span>update_movement()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void update_movement </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>characterr1</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>characterr2</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja update_movement ma za zadanie zaimplementować poruszanie się postaci oraz kolizje wraz ze ścianami i drugim graczem. Przyjmowane argumenty to informacje o pierwszym i drugim graczu, z czego informacje drugiego gracza nie są w żaden sposób modyfikowane i służą tylko do sprawdzania kolizji z drugim graczem. </p>
+
+</div>
+</div>
+<a id="af284d397e88e1ef7a99975aad97fa3eb" name="af284d397e88e1ef7a99975aad97fa3eb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af284d397e88e1ef7a99975aad97fa3eb">&#9670;&#160;</a></span>view_scores()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void view_scores </td>
+          <td>(</td>
+          <td class="paramname"><span class="paramname"><em></em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja view_scores ma na celu wywołanie funkcji, które narysują wyniki. </p>
+
+</div>
+</div>
+<a id="a3cb13eecd215c1a3eba921f07c0a090d" name="a3cb13eecd215c1a3eba921f07c0a090d"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a3cb13eecd215c1a3eba921f07c0a090d">&#9670;&#160;</a></span>win()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void win </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>character</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>r</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>g</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>b</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">const char *</td>          <td class="paramname"><span class="paramname"><em>winner</em></span>, </td>
+        </tr>
+        <tr>
+          <td class="paramkey"></td>
+          <td></td>
+          <td class="paramtype">float</td>          <td class="paramname"><span class="paramname"><em>offset</em></span>&#160;)</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja win przyjmuje jako parametry: informacje o graczu, kolor RGB, ciąg znaków określający kto jest zwycięzcą oraz offset. Funkcja ma za zadanie, wyświetlić na ekranie podłużny poziomy pasek a na nim napis kto zwyciężył. Zwycięzcą jest ten, który jako pierwszy osiągnął 5 punktów. Offset jest wykorzystywany do wyśrodkowania napisu, funkcja ta też zresetujewyniki oraz powróci graczy do menu głównego. </p>
+
+</div>
+</div>
+<a id="af371cab04f1947b5388afaebb6de36a5" name="af371cab04f1947b5388afaebb6de36a5"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af371cab04f1947b5388afaebb6de36a5">&#9670;&#160;</a></span>yeet_bober()</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">void yeet_bober </td>
+          <td>(</td>
+          <td class="paramtype">struct <a class="el" href="structcharacter__info.html">character_info</a> *</td>          <td class="paramname"><span class="paramname"><em>character</em></span></td><td>)</td>
+          <td></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Funkcja yeet_bober przyjmuje jako parametr informacje dotyczące gracza. Funkcja ta sprawdzi, czy gracz nie żyje i wyrzuci go poza mapę. </p>
+
+</div>
+</div>
+<h2 class="groupheader">Dokumentacja zmiennych</h2>
+<a id="ae61292635a260c5276e1d1ef18cc9c3f" name="ae61292635a260c5276e1d1ef18cc9c3f"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae61292635a260c5276e1d1ef18cc9c3f">&#9670;&#160;</a></span>character1</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structcharacter__info.html">character_info</a> character1</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Struktury globalna typu <a class="el" href="structcharacter__info.html">character_info</a>, które przechowują informacje o pierwszym graczu(niebieskim). </p>
+
+</div>
+</div>
+<a id="a8b062574251ec95198fe7a5135fcf448" name="a8b062574251ec95198fe7a5135fcf448"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b062574251ec95198fe7a5135fcf448">&#9670;&#160;</a></span>character2</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structcharacter__info.html">character_info</a> character2</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Struktury globalna typu <a class="el" href="structcharacter__info.html">character_info</a>, które przechowują informacje o drugim graczu(czerwonym). </p>
+
+</div>
+</div>
+<a id="a9dd63150de1598d744144a2d8e750fc2" name="a9dd63150de1598d744144a2d8e750fc2"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a9dd63150de1598d744144a2d8e750fc2">&#9670;&#160;</a></span>engine</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ma_engine engine</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Silnik dźwiękowy. </p>
+
+</div>
+</div>
+<a id="af6825ca3438ec3678dbaa8ab2f66aa29" name="af6825ca3438ec3678dbaa8ab2f66aa29"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#af6825ca3438ec3678dbaa8ab2f66aa29">&#9670;&#160;</a></span>map_data</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char map_data[7][11]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Macierz, na której odbywa się gra, przechowuje informacje o tym, jak wygląda aktualna mapa, gdzie są przeszkody, bomby, kule ognia. 0-Puste pole można przez nie przejść i nic się nie stanie. 1-Niezniszczalna ściana, której nie można zniszczyć i nie można przez nią przejść. 2-Zniszczalna przeszkoda, którą można wysadzić bombą, po wysadzeniu zamienia się w puste pole. 3-Kula ognia, powstała po postawieniu bomby, jest w stanie niszczyć zniszczalne ściany oraz wejście w nią przez gracza spowoduje śmierć. 4-Bomba, w tym miejscu znajduje się bomba, nie pozwala na postawienie w tym miejscu nowej bomby, służy do zaoszczędzenia pamięci w kolejce FIFO. </p>
+
+</div>
+</div>
+<a id="afb6652598efafa53d4642e9506eb40b4" name="afb6652598efafa53d4642e9506eb40b4"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#afb6652598efafa53d4642e9506eb40b4">&#9670;&#160;</a></span>mapDisplayList</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GLuint mapDisplayList</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Display List zawierająca ściany. </p>
+
+</div>
+</div>
+<a id="a5be7ade11d0c3e1c9a755ede76458f85" name="a5be7ade11d0c3e1c9a755ede76458f85"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a5be7ade11d0c3e1c9a755ede76458f85">&#9670;&#160;</a></span>Menus</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">enum <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68">Menus</a> <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68">Menus</a> = <a class="el" href="#ae67e4504bf422a42cfc4e09f5031ff68a78258cb525a1829626fdfa703786e2b7">MAIN_MANU</a></td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Definicja typu wyliczeniowego mówiąca o tym, w którym menu aktualnie jesteśmy. </p>
+
+</div>
+</div>
+<a id="ae6652d0fe8e12c1b732f03e1576ddb0b" name="ae6652d0fe8e12c1b732f03e1576ddb0b"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ae6652d0fe8e12c1b732f03e1576ddb0b">&#9670;&#160;</a></span>original_map_data</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">char original_map_data[7][11]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Macierz, która przechowuje dane dotyczące mapy, gdzie znajdują się skrzynki, ściany i wolne miejsca, wykorzystywana do zrestartowania macierzy map_data po restarcie gry. </p>
+
+</div>
+</div>
+<a id="a1656129c4a4fd8809254194f08f0ac70" name="a1656129c4a4fd8809254194f08f0ac70"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a1656129c4a4fd8809254194f08f0ac70">&#9670;&#160;</a></span>paused</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool paused = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Flaga, która mówi, czy gra jest zapauzowana. </p>
+
+</div>
+</div>
+<a id="a296a8491cf20aa5f3d4406432f857d1c" name="a296a8491cf20aa5f3d4406432f857d1c"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a296a8491cf20aa5f3d4406432f857d1c">&#9670;&#160;</a></span>paused_time</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned long long paused_time</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Zmienna, która przetrzymuje czas, na jaki była zapauzowana gra. </p>
+
+</div>
+</div>
+<a id="a26e302558819c8850c96ac6a9d056e77" name="a26e302558819c8850c96ac6a9d056e77"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a26e302558819c8850c96ac6a9d056e77">&#9670;&#160;</a></span>proceed</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">bool proceed = false</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Flaga, która jest wykorzystywana podczas pokazywania wyników i restartowania gry. </p>
+
+</div>
+</div>
+<a id="a8b48c77dbac5f8d2e7913f795c624598" name="a8b48c77dbac5f8d2e7913f795c624598"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a8b48c77dbac5f8d2e7913f795c624598">&#9670;&#160;</a></span>queue</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">struct <a class="el" href="structqueue__pointers.html">queue_pointers</a> queue = {NULL, NULL}</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Kolejka FIFO używana przy tworzeniu bomb. </p>
+
+</div>
+</div>
+<a id="a6041216f4813c123c6eb8e11750118cb" name="a6041216f4813c123c6eb8e11750118cb"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6041216f4813c123c6eb8e11750118cb">&#9670;&#160;</a></span>score_timer</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">unsigned long long score_timer</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Zmienna, która przetrzymuje czas, o której zginął jeden z graczy, czas ten jest wykorzystywany podczas pokazywania się wyników oraz zwycięzcy. </p>
+
+</div>
+</div>
+<a id="a6d55100acc372768a97cedc2adf819ca" name="a6d55100acc372768a97cedc2adf819ca"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#a6d55100acc372768a97cedc2adf819ca">&#9670;&#160;</a></span>sounds</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">ma_sound sounds[5]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Tablica zawierająca dźwięki. </p>
+
+</div>
+</div>
+<a id="ad953b67f31b189347ca108ee3bf8df78" name="ad953b67f31b189347ca108ee3bf8df78"></a>
+<h2 class="memtitle"><span class="permalink"><a href="#ad953b67f31b189347ca108ee3bf8df78">&#9670;&#160;</a></span>texture</h2>
+
+<div class="memitem">
+<div class="memproto">
+      <table class="memname">
+        <tr>
+          <td class="memname">GLuint texture[17]</td>
+        </tr>
+      </table>
+</div><div class="memdoc">
+<p>Tablica zawierająca tekstury. </p>
+
+</div>
+</div>
+</div><!-- contents -->
+<!-- start footer part -->
+<hr class="footer"/><address class="footer"><small>
+Wygenerowano za pomocą&#160;<a href="https://www.doxygen.org/index.html"><img class="footer" src="doxygen.svg" width="104" height="31" alt="doxygen"/></a> 1.11.0
+</small></address>
+</div><!-- doc-content -->
+</body>
+</html>

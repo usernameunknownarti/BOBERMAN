@@ -14,71 +14,138 @@
 
 #include "libs/miniaudio.h"
 
-#define WINDOW_WIDTH 1100 // Szerokość okna gry.
-#define WINDOW_HEIGHT 700 // Wysokość okna gry.
+/** Szerokość okna gry. */
+#define WINDOW_WIDTH 1100
+/** Wysokość okna gry. */
+#define WINDOW_HEIGHT 700
 
-enum Menus { // Typ wyliczeniowy mówiący, w którym menu teraz jesteśmy.
-    GAME, // Jesteśmy w grze.
-    OPTIONS, // Jesteśmy w opcjach.
-    MAIN_MANU // Jesteśmy w menu głównym.
-} Menus = MAIN_MANU; // Definicja typu wyliczeniowego mówiąca o tym, w którym menu aktualnie jesteśmy.
-
-enum BombStatus { // Typ wyliczeniowy mówiący, w jakim stanie bomby jest aktualnie bomba.
-    BOMB, // Bomba została podłożona i nie wybuchła.
-    EXPLODING, // Bomba jest w trakcie wybuchania.
-    AFTERMATH // Bomba już wybuchła.
+/**
+* Typ wyliczeniowy mówiący, w którym menu teraz jesteśmy.
+*/
+enum Menus {
+    /** Jesteśmy w grze. */
+    GAME,
+    /** Jesteśmy w opcjach. */
+    OPTIONS,
+    /** Jesteśmy w menu głównym. */
+    MAIN_MANU
 };
 
-struct character_info { // Struktura przechowująca informacje o graczu.
-    float y; // Pozycja na osi Y gracza (w przeciwieństwie do większosci elementów w tym programie, pozycja gracza jest liczona od środka nie od lewego górnego rogu).
-    float x; // Pozycja na osi X gracza (w przeciwieństwie do większosci elementów w tym programie, pozycja gracza jest liczona od środka nie od lewego górnego rogu).
-    int score; // Punkty gracza.
-    bool moving_up; // Flaga, która mówi, czy gracz porusza się w górę.
-    bool moving_down; // Flaga, która mówi, czy gracz porusza się w dół.
-    bool moving_left; // Flaga, która mówi, czy gracz porusza się w lewo.
-    bool moving_right; // Flaga, która mówi, czy gracz porusza się w prawo.
-    bool died; // Flaga, która mówi, czy gracz nie żyje.
-    bool ability_to_bomb; // Flaga, która mówi, czy gracz może położyć bombę
-    bool can_play_death_sound_effect; // Flaga, która mówi, czy gracz może wydać dźwięk śmierci.
-} character1, character2; // Dwie struktury globalne typu character_info, które przechowują informacje o pierwszym(niebieskim) i drugim(czerwonym) graczu.
+/** Definicja typu wyliczeniowego mówiąca o tym, w którym menu aktualnie jesteśmy. */
+enum Menus Menus = MAIN_MANU;
 
-struct queue_node { // Węzeł kolejki FIFO.
-    unsigned long long bomb_timer; // Czas, który jest wykorzystywany do sprawdzania, kiedy wybucha bomba.
-    float bomb_y; // Lokacja bomby na osi Y na macierzy map_data (typu float).
-    float bomb_x; // Lokacja bomby na osi X na macierzy map_data (typu float).
-    int aftermath_y; // Lokacja bomby na osi Y na macierzy map_data.
-    int aftermath_x; // Lokacja bomby na osi X na macierzy map_data.
-    enum BombStatus bomb_status; // Definicja typu wyliczeniowego mówiąca o tym, w którym stanie jest aktualnie bomba.
-    bool can_play_explosion_sound_effect; // Flaga, która określa czy może zostać wydany dźwięk eksplozji.
-    struct queue_node *next; // Wskaźnik na następny węzeł kolejki FIFO.
+/**
+* Typ wyliczeniowy mówiący, w jakim stanie bomby jest aktualnie bomba.
+*/
+enum BombStatus {
+    /** Bomba została podłożona i nie wybuchła. */
+    BOMB,
+    /** Bomba jest w trakcie wybuchania. */
+    EXPLODING,
+    /** Bomba już wybuchła. */
+    AFTERMATH
 };
 
-struct queue_pointers { // Węzeł wskazujący na początek i koniec kolejki FIFO.
-    struct queue_node *head, *tail; // Wskaźniki wskazujące na początek i koniec kolejki.
-} queue = {NULL, NULL}; // Kolejka FIFO używana przy tworzeniu bomb.
+/**
+* Struktura przechowująca informacje o graczu.
+*/
+struct character_info {
+    /** Pozycja na osi Y gracza (w przeciwieństwie do większosci elementów w tym programie, pozycja gracza jest liczona od środka nie od lewego górnego rogu). */
+    float y;
+    /** Pozycja na osi X gracza (w przeciwieństwie do większosci elementów w tym programie, pozycja gracza jest liczona od środka nie od lewego górnego rogu). */
+    float x;
+    /** Punkty gracza. */
+    int score;
+    /** Flaga, która mówi, czy gracz porusza się w górę. */
+    bool moving_up;
+    /** Flaga, która mówi, czy gracz porusza się w dół. */
+    bool moving_down;
+    /** Flaga, która mówi, czy gracz porusza się w lewo. */
+    bool moving_left;
+    /** Flaga, która mówi, czy gracz porusza się w prawo. */
+    bool moving_right;
+    /** Flaga, która mówi, czy gracz nie żyje. */
+    bool died;
+    /** Flaga, która mówi, czy gracz może położyć bombę */
+    bool ability_to_bomb;
+    /** Flaga, która mówi, czy gracz może wydać dźwięk śmierci. */
+    bool can_play_death_sound_effect;
+};
+/** Struktury globalna typu character_info, które przechowują informacje o pierwszym graczu(niebieskim). */
+struct character_info character1;
+/** Struktury globalna typu character_info, które przechowują informacje o drugim graczu(czerwonym). */
+struct character_info character2;
 
-unsigned long long score_timer; // Zmienna, która przetrzymuje czas, o której zginął jeden z graczy, czas ten jest wykorzystywany podczas pokazywania się wyników oraz zwycięzcy.
-unsigned long long paused_time; // Zmienna, która przetrzymuje czas, na jaki była zapauzowana gra.
-bool proceed = false; // Flaga, która jest wykorzystywana podczas pokazywania wyników i restartowania gry.
-bool paused = false; // Flaga, która mówi, czy gra jest zapauzowana.
+/**
+* Węzeł kolejki FIFO.
+*/
+struct queue_node {
+    /** Czas, który jest wykorzystywany do sprawdzania, kiedy wybucha bomba. */
+    unsigned long long bomb_timer;
+    /** Lokacja bomby na osi Y na macierzy map_data (typu float). */
+    float bomb_y;
+    /** Lokacja bomby na osi X na macierzy map_data (typu float). */
+    float bomb_x;
+    /** Lokacja bomby na osi Y na macierzy map_data. */
+    int aftermath_y;
+    /** Lokacja bomby na osi X na macierzy map_data. */
+    int aftermath_x;
+    /** Definicja typu wyliczeniowego mówiąca o tym, w którym stanie jest aktualnie bomba. */
+    enum BombStatus bomb_status;
+    /** Flaga, która określa czy może zostać wydany dźwięk eksplozji. */
+    bool can_play_explosion_sound_effect;
+    /** Wskaźnik na następny węzeł kolejki FIFO. */
+    struct queue_node *next;
+};
 
-char map_data[7][11]; // Macierz, na której odbywa się gra, przechowuje informacje o tym, jak wygląda aktualna mapa, gdzie są przeszkody, bomby, kule ognia.
-// 0-Puste pole można przez nie przejść i nic się nie stanie.
-// 1-Niezniszczalna ściana, której nie można zniszczyć i nie można przez nią przejść.
-// 2-Zniszczalna przeszkoda, którą można wysadzić bombą, po wysadzeniu zamienia się w puste pole.
-// 3-Kula ognia, powstała po postawieniu bomby, jest w stanie niszczyć zniszczalne ściany oraz wejście w nią przez gracza spowoduje śmierć.
-// 4-Bomba, w tym miejscu znajduje się bomba, nie pozwala na postawienie w tym miejscu nowej bomby, służy do zaoszczędzenia pamięci w kolejce FIFO.
-char original_map_data[7][11]; // Macierz, która przechowuje dane dotyczące mapy, gdzie znajdują się skrzynki, ściany i wolne miejsca, wykorzystywana
-// do zrestartowania macierzy map_data po restarcie gry.
+/**
+* Węzeł wskazujący na początek i koniec kolejki FIFO.
+*/
+struct queue_pointers {
+    /** Wskaźnik wskazujący na przód kolejki. */
+    struct queue_node *head;
+    /** Wskaźnik wskazujący na tył kolejki. */
+    struct queue_node *tail;
+};
 
-GLuint mapDisplayList; // Display List zawierająca ściany.
-GLuint texture[17]; // Tablica zawierająca tekstury.
-ma_sound sounds[5]; // Tablica zawierająca dźwięki.
-ma_engine engine; // Silnik dźwiękowy.
+/** Kolejka FIFO używana przy tworzeniu bomb. */
+struct queue_pointers  queue = {NULL, NULL};
 
-// Funkcja loadTexture służy do wczytywania tekstury z pliku .png i zwraca takową teksturę, funkcja przyjmuje
-// jako argument ścieżkę do podanej tekstury, tekstury są przechowywane w folderze graphics i są rozszerzenia .png,
-// przez co podawany argument będzie miał postać "graphics/texture.png".
+/** Zmienna, która przetrzymuje czas, o której zginął jeden z graczy, czas ten jest wykorzystywany podczas pokazywania się wyników oraz zwycięzcy. */
+unsigned long long score_timer;
+/** Zmienna, która przetrzymuje czas, na jaki była zapauzowana gra. */
+unsigned long long paused_time;
+/** Flaga, która jest wykorzystywana podczas pokazywania wyników i restartowania gry. */
+bool proceed = false;
+/** Flaga, która mówi, czy gra jest zapauzowana. */
+bool paused = false;
+
+/** Macierz, na której odbywa się gra, przechowuje informacje o tym, jak wygląda aktualna mapa, gdzie są przeszkody, bomby, kule ognia.
+* 0-Puste pole można przez nie przejść i nic się nie stanie.
+* 1-Niezniszczalna ściana, której nie można zniszczyć i nie można przez nią przejść.
+* 2-Zniszczalna przeszkoda, którą można wysadzić bombą, po wysadzeniu zamienia się w puste pole.
+* 3-Kula ognia, powstała po postawieniu bomby, jest w stanie niszczyć zniszczalne ściany oraz wejście w nią przez gracza spowoduje śmierć.
+* 4-Bomba, w tym miejscu znajduje się bomba, nie pozwala na postawienie w tym miejscu nowej bomby, służy do zaoszczędzenia pamięci w kolejce FIFO.
+*/
+char map_data[7][11];
+/** Macierz, która przechowuje dane dotyczące mapy, gdzie znajdują się skrzynki, ściany i wolne miejsca, wykorzystywana
+* do zrestartowania macierzy map_data po restarcie gry.
+*/
+char original_map_data[7][11];
+/** Display List zawierająca ściany. */
+GLuint mapDisplayList;
+/** Tablica zawierająca tekstury. */
+GLuint texture[17];
+/** Tablica zawierająca dźwięki. */
+ma_sound sounds[5];
+/** Silnik dźwiękowy. */
+ma_engine engine;
+
+/**
+* Funkcja loadTexture służy do wczytywania tekstury z pliku .png i zwraca takową teksturę, funkcja przyjmuje
+* jako argument ścieżkę do podanej tekstury, tekstury są przechowywane w folderze graphics i są rozszerzenia .png,
+* przez co podawany argument będzie miał postać "graphics/texture.png".
+*/
 GLuint loadTexture(const char *filename) { // filename-ścieżka do tekstury.
     int width, height, channels; // Zmienne, które oznaczają szerokość, wysokość i liczby kanałów tekstury.
     unsigned char *pixel_data = stbi_load(filename, &width, &height, &channels, 0); // Wczytanie danych tekstury i zapisanie ich adresu do zmiennej pixel_data.
@@ -107,8 +174,10 @@ GLuint loadTexture(const char *filename) { // filename-ścieżka do tekstury.
     return texture_gluint; // Zwrócenie tekstury.
 }
 
-// Funkcja entity_button, której zadaniem jest narysować prostokąt o rozmiarze 800 x 100 i nadać mu tekturę.
-// Jako argument funkcja przyjmuje: koordynaty gdzie zostanie narysowany prostokąt oraz teksturę.
+/**
+* Funkcja entity_button, której zadaniem jest narysować prostokąt o rozmiarze 800 x 100 i nadać mu tekturę.
+* Jako argument funkcja przyjmuje: koordynaty gdzie zostanie narysowany prostokąt oraz teksturę.
+*/
 void entity_button(float x, float y, GLuint texture_gluint) { // float x - pozycja na osi X, float y - pozycja na osi Y, GLuint texture_gluint - tekstura.
     glBindTexture(GL_TEXTURE_2D, texture_gluint);  // Rozpoczęcie nakładania tekstury na objekt.
     glColor3f(1.0f, 1.0f, 1.0f); // Ustawienie koloru prostokąta na biały.
@@ -127,8 +196,10 @@ void entity_button(float x, float y, GLuint texture_gluint) { // float x - pozyc
     glBindTexture(GL_TEXTURE_2D, 0); // Zakończenie nakładania tekstury na prostokąt.
 }
 
-// Funkcja entity_background, której zadaniem jest narysować prostokąt o rozmiarze okna gry i nadać mu tekturę.
-// Jako argument funkcja przyjmuje teksturę.
+/**
+* Funkcja entity_background, której zadaniem jest narysować prostokąt o rozmiarze okna gry i nadać mu tekturę.
+* Jako argument funkcja przyjmuje teksturę.
+*/
 void entity_background(GLuint texture_gluint) { // GLuint texture_gluint - tekstura.
     glBindTexture(GL_TEXTURE_2D, texture_gluint); // Rozpoczęcie nakładania tekstury na prostokąt.
     glColor3f(1.0f, 1.0f, 1.0f); // Ustawienie koloru prostokąta na biały.
@@ -147,8 +218,10 @@ void entity_background(GLuint texture_gluint) { // GLuint texture_gluint - tekst
     glBindTexture(GL_TEXTURE_2D, 0); // Zakończenie nakładania tekstury na prostokąt.
 }
 
-// Funkcja entity_pause, której zadaniem jest narysować prostokąt o rozmiarze 550 na 275 i nadać mu tekturę.
-// Jako argument funkcja przyjmuje koordynaty gdzie ma zostać menu narysowane oraz teksturę.
+/**
+* Funkcja entity_pause, której zadaniem jest narysować prostokąt o rozmiarze 550 na 275 i nadać mu tekturę.
+* Jako argument funkcja przyjmuje koordynaty gdzie ma zostać menu narysowane oraz teksturę.
+*/
 void entity_pause(float x, float y, GLuint texture_gluint) {  // x-pozycja na osi X, y pozycja na osi Y, GLuint texture_gluint - tekstura.
     glBindTexture(GL_TEXTURE_2D, texture_gluint);  // Rozpoczęcie nakładania tekstury na prostokąt.
     glColor3f(1.0f, 1.0f, 1.0f); // Ustawienie koloru prostokąta na biały.
@@ -167,10 +240,11 @@ void entity_pause(float x, float y, GLuint texture_gluint) {  // x-pozycja na os
     glBindTexture(GL_TEXTURE_2D, 0); // Zakończenie nakładania tekstury na prostokąt.
 }
 
-
-// Funkcja entity_square, której zadaniem jest narysować kwadrat i nadać mu tekturę.
-// Jako argumenty przyjmuje pozycję gdzie ma zostać narysowany kwadrat
-// oraz teksturę.
+/**
+* Funkcja entity_square, której zadaniem jest narysować kwadrat i nadać mu tekturę.
+* Jako argumenty przyjmuje pozycję gdzie ma zostać narysowany kwadrat
+* oraz teksturę.
+*/
 void entity_square(float x, float y, GLuint texture_gluint) { // float x - pozycja na osi X, float y - pozycja na osi Y, GLuint texture_gluint - tekstura.
     glBindTexture(GL_TEXTURE_2D, texture_gluint); // Rozpoczęcie nakładania tekstury na kwadrat.
     glColor3f(1.0f, 1.0f, 1.0f); // Ustawienie koloru kwadratu na biały.
@@ -189,8 +263,10 @@ void entity_square(float x, float y, GLuint texture_gluint) { // float x - pozyc
     glBindTexture(GL_TEXTURE_2D, 0); // Zakończenie nakładania tekstury na kwadrat.
 }
 
-// Funkcja entity_rectangle_alpha, jej zadaniem jest narysowanie na ekranie podłużnego prostokąta o rozmiarach
-// 300 x 700, jako parametry funkcja przyjmuję: kolor RGB, alfę, oraz pozycję na osi X i Y.
+/**
+* Funkcja entity_rectangle_alpha, jej zadaniem jest narysowanie na ekranie podłużnego prostokąta o rozmiarach
+* 300 x 700, jako parametry funkcja przyjmuję: kolor RGB, alfę, oraz pozycję na osi X i Y.
+*/
 void entity_rectangle_alpha(float r, float g, float b, float alpha, float x, float y) {
     // float r-kolor czerowny, float g-kolor zielony, float b-kolor niebieski.
     // float alpha-kanał alfa.
@@ -199,8 +275,10 @@ void entity_rectangle_alpha(float r, float g, float b, float alpha, float x, flo
     glRectf(x, y, x + 300, WINDOW_HEIGHT); // Wywołanie funkcji, która stworzy prostokąt od punktu x,y do punktu x+300, WINDOW_HEIGHT (prostokąt o rozmiarach 300 x 700).
 }
 
-// Funkcja entity_big_rectangle_alpha, jej zadaniem jest narysowanie na ekranie podłużnego prostokąta o rozmiarach
-// 1100 x 300, jako parametry funkcja przyjmuję: kolor RGB oraz alfę.
+/**
+* Funkcja entity_big_rectangle_alpha, jej zadaniem jest narysowanie na ekranie podłużnego prostokąta o rozmiarach
+* 1100 x 300, jako parametry funkcja przyjmuję: kolor RGB oraz alfę.
+*/
 void entity_big_rectangle_alpha(float r, float g, float b, float alpha) {
     // float r-kolor czerowny, float g-kolor zielony, float b-kolor niebieski.
     // float alpha-kanał alfa.
@@ -209,9 +287,11 @@ void entity_big_rectangle_alpha(float r, float g, float b, float alpha) {
     glRectf(0, 150, WINDOW_WIDTH, 550); // Wywołanie funkcji, która stworzy prostokąt od punktu 0,150 do WINDOW_WIDTH,550 (prostokąt o rozmiarach 1100 x 300).
 }
 
-// Funkcja entity_score, której zadaniem jest narysować dwa podłużne pionowe przezroczyste prostokąty, oraz
-// na nich napisać wynik obydwu graczy. Jako parametry ta funkcja przyjmuje: pozycję, kolor RGB, oraz informację
-// o graczu.
+/**
+*Funkcja entity_score, której zadaniem jest narysować dwa podłużne pionowe przezroczyste prostokąty, oraz
+* na nich napisać wynik obydwu graczy. Jako parametry ta funkcja przyjmuje: pozycję, kolor RGB, oraz informację
+* o graczu.
+*/
 void entity_score(float x, float r, float g, float b, struct character_info *character) {
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT); // Zapisanie aktualnych stanów atrybutów.
     glPushMatrix(); // Zapisanie aktualnej macierzy transformacji.
@@ -224,8 +304,10 @@ void entity_score(float x, float r, float g, float b, struct character_info *cha
     glPopAttrib(); // Przywrócenie poprzednich stanów atrybutów.
 }
 
-// Funkcja entity_score, której zadaniem jest narysować podłużny pionowy przezroczysty prostokąt, oraz
-// na nim narysować napis. Funkcja jako paremtry przyjmuje: kolor RGB, napis oraz offset.
+/**
+* Funkcja entity_score, której zadaniem jest narysować podłużny pionowy przezroczysty prostokąt, oraz
+* na nim narysować napis. Funkcja jako paremtry przyjmuje: kolor RGB, napis oraz offset.
+*/
 void entity_winner(float r, float g, float b, const char *winner, float offset) {
     glPushAttrib(GL_COLOR_BUFFER_BIT | GL_ENABLE_BIT); // Zapisanie aktualnych stanów atrybutów.
     glPushMatrix(); // Zapisanie aktualnej macierzy transformacji.
@@ -238,9 +320,11 @@ void entity_winner(float r, float g, float b, const char *winner, float offset) 
     glPopAttrib(); // Przywrócenie poprzednich stanów atrybutów.
 }
 
-// Funkcja set_map przyjmuję jako argument ścieżkę do pliku tekstowego, który zawiera kombinacje numerów (0, 1 i 2),
-// pliki znajdują się w folderze maps i mają rozszerzenie .txt przez co podawany argument będzie miał postać "maps/map.txt".
-// Zadaniem funkcji jest zczytanie wartości z pliku tekstowego i zapisania ich do tablicy map_data i original_map_data.
+/**
+* Funkcja set_map przyjmuję jako argument ścieżkę do pliku tekstowego, który zawiera kombinacje numerów (0, 1 i 2),
+* pliki znajdują się w folderze maps i mają rozszerzenie .txt przez co podawany argument będzie miał postać "maps/map.txt".
+* Zadaniem funkcji jest zczytanie wartości z pliku tekstowego i zapisania ich do tablicy map_data i original_map_data.
+*/
 void set_map(char *filename) { // filename-ścieżka do mapy.
     FILE *fp = fopen(filename, "r"); // Otwarcie pliku, tylko do zczytywania.
     if (fp == NULL) { // Sprawdzenie, czy plik się nie otworzył.
@@ -260,9 +344,11 @@ void set_map(char *filename) { // filename-ścieżka do mapy.
     fclose(fp); // Zamknięcie pliku tekstowego.
 }
 
-// Funkcja restart_map_data służy do zresetowania macierzy map_data, to tego
-// jest wykorzystywana macierz original_map_data, która przechowuje nietknięte
-// informacje dotyczące mapy.
+/**
+* Funkcja restart_map_data służy do zresetowania macierzy map_data, to tego
+* jest wykorzystywana macierz original_map_data, która przechowuje nietknięte
+* informacje dotyczące mapy.
+*/
 void restart_map_data() {
     for (int i = 0; i < 7; i++) { // Przejście przez macierz map_data.
         for (int j = 0; j < 11; j++) {
@@ -271,8 +357,10 @@ void restart_map_data() {
     }
 }
 
-// Funkcja restart_game ma za zadanie zresetować flagi postaci oraz ich pozycje
-// na takie, jakie były na początku gry.
+/**
+* Funkcja restart_game ma za zadanie zresetować flagi postaci oraz ich pozycje
+* na takie, jakie były na początku gry.
+*/
 void restart_game() {
     character1.died = false; // Zresetowanie flagi czy pierwsza postać zginęła.
     character2.died = false; // Zresetowanie flagi czy druga postać zginęła.
@@ -289,10 +377,12 @@ void restart_game() {
     }
 }
 
-// Funkcja win przyjmuje jako parametry: informacje o graczu, kolor RGB, ciąg znaków określający kto jest zwycięzcą oraz offset.
-// Funkcja ma za zadanie, wyświetlić na ekranie podłużny poziomy pasek a na nim napis kto zwyciężył. Zwycięzcą jest ten, który
-// jako pierwszy osiągnął 5 punktów. Offset jest wykorzystywany do wyśrodkowania napisu, funkcja ta też zresetujewyniki oraz
-// powróci graczy do menu głównego.
+/**
+* Funkcja win przyjmuje jako parametry: informacje o graczu, kolor RGB, ciąg znaków określający kto jest zwycięzcą oraz offset.
+* Funkcja ma za zadanie, wyświetlić na ekranie podłużny poziomy pasek a na nim napis kto zwyciężył. Zwycięzcą jest ten, który
+* jako pierwszy osiągnął 5 punktów. Offset jest wykorzystywany do wyśrodkowania napisu, funkcja ta też zresetujewyniki oraz
+* powróci graczy do menu głównego.
+*/
 void win(struct character_info *character, float r, float g, float b, const char *winner, float offset) {
     // struct character_info *character-informacje o graczu,
     // float r-kolor czerwony, float g-kolor zielony, float b-kolor niebieski,
@@ -308,9 +398,11 @@ void win(struct character_info *character, float r, float g, float b, const char
     }
 }
 
-// Funkcja set_score ma za zadanie ustawić punkty obydwu graczy, jeżeli gracz pierwszy zginie, to do punktów drugiego gracza jest przydzielany 1 punkt,
-// tak samo działa to dla śmierci drugiego gracza. Jeżeli obydwu graczy zginie, to od ich punktów jest odejmowany 1 punkt (efektem tego jest remis i niezwiększanie
-// się punktów). Funkcja ta ma się wykonywać tylko raz, więc korzysta z flagi proceed.
+/**
+* Funkcja set_score ma za zadanie ustawić punkty obydwu graczy, jeżeli gracz pierwszy zginie, to do punktów drugiego gracza jest przydzielany 1 punkt,
+* tak samo działa to dla śmierci drugiego gracza. Jeżeli obydwu graczy zginie, to od ich punktów jest odejmowany 1 punkt (efektem tego jest remis i niezwiększanie
+* się punktów). Funkcja ta ma się wykonywać tylko raz, więc korzysta z flagi proceed.
+*/
 void set_score() {
     if (!proceed) { // Sprawdzenie, które ma na celu upewnić się, że wynik zostanie dodany tylko raz.
         if (character1.died) { // Sprawdzenie, czy pierwszy gracz nie żyje.
@@ -329,16 +421,20 @@ void set_score() {
     }
 }
 
-// Funkcja view_scores ma na celu wywołanie funkcji, które narysują wyniki.
+/**
+* Funkcja view_scores ma na celu wywołanie funkcji, które narysują wyniki.
+*/
 void view_scores() {
     entity_score(200.0f, 1.0f, 0.0f, 0.0f, &character2); // Wywołanie funkcji, która narysuje wyniki dla drugiego gracza.
     entity_score(600.0f, 0.0f, 0.0f, 1.0f, &character1); // Wywołanie funkcji, która narysuje wyniki dla pierwszego gracza.
 }
 
-// Funkcja enqueue dodaje nowy element do kolejki FIFO. Funkcja ta jest kluczowa do poprawnego działania bomb,
-// funkcja ta zaalokuje nową pamięć dla nowego węzła, po czym do tego węzła przydzieli odpowiednie dane które zostały
-// podane to funkcji jako argumenty, argumenty te to: wskaźniki wskazujące na początek i koniec kolejki, koordynaty bomby w typie float,
-// koordynaty bomby w typie int, oraz czas, który będzie wykorzystywany podczas wybuchów bomby.
+/**
+* Funkcja enqueue dodaje nowy element do kolejki FIFO. Funkcja ta jest kluczowa do poprawnego działania bomb,
+* funkcja ta zaalokuje nową pamięć dla nowego węzła, po czym do tego węzła przydzieli odpowiednie dane, które zostały
+* podane to funkcji jako argumenty, argumenty te to: wskaźniki wskazujące na początek i koniec kolejki, koordynaty bomby w typie float,
+* koordynaty bomby w typie int, oraz czas, który będzie wykorzystywany podczas wybuchów bomby.
+*/
 void enqueue(struct queue_pointers *queue_bomb, float bomb_x, float bomb_y, int aftermath_x, int aftermath_y, unsigned long long bomb_timer) {
     // struct queue_pointers *queue_bomb - wskaźniki wskazujące na początek i koniec kolejki,
     // float bomb_x - lokacja bomby na osi X o typie float,
@@ -366,22 +462,27 @@ void enqueue(struct queue_pointers *queue_bomb, float bomb_x, float bomb_y, int 
     }
 }
 
-bool dequeue(struct queue_pointers *queue_bomb) {
-    if (queue_bomb->head != NULL) {
-        struct queue_node *tmp = queue_bomb->head->next;
-        map_data[queue_bomb->head->aftermath_y][queue_bomb->head->aftermath_x] = 0;
-        free(queue_bomb->head);
-        queue_bomb->head = tmp;
-        if (tmp == NULL) {
-            queue_bomb->tail = NULL;
+/**
+* Funkcja dequeue zdejmuje najstarszą bombę która juz wybuchła i czyści pamięć po nim. Funkcja ta jest kluczowa dla
+* poprawnego działania programu żeby nie doszło do wycieków pamięci. Jako argument funkcja przyjmuje wskaźniki
+* wskazujące na początek i koniec kolejki.
+*/
+void dequeue(struct queue_pointers *queue_bomb) { // struct queue_pointers *queue_bomb - wskaźniki wskazujące na początek i koniec kolejki.
+    if (queue_bomb->head != NULL) { // Sprawdzenie, czy węzeł istnieje.
+        struct queue_node *tmp = queue_bomb->head->next; // Stworzenie tymczasowego węzła, który przyjmuje adres następnego węzła.
+        map_data[queue_bomb->head->aftermath_y][queue_bomb->head->aftermath_x] = 0; // Ustawienie pola, na którym znajduje się węzeł, na macierzy map_data na puste pole.
+        free(queue_bomb->head); // Wyczyszczenie węzła.
+        queue_bomb->head = tmp; // Ustawienie najstarzego węzła na następny.
+        if (tmp == NULL) { // Sprawdzenie, czy nie istnieje następny węzeł.
+            queue_bomb->tail = NULL; // Ustawienie tyłu kolejki FIFO na NULL (Kolejka FIFO jest pusta).
         }
-        return true;
     }
-    return false;
 }
 
-// Funkcja play_explosion_sound_effect puszcza dźwięk eksplozji bomby, ale tylko raz.
-// Funkcja przyjmuje jako argument aktualny węzeł kolejki.
+/**
+* Funkcja play_explosion_sound_effect puszcza dźwięk eksplozji bomby, ale tylko raz.
+* Funkcja przyjmuje jako argument aktualny węzeł kolejki.
+*/
 void play_explosion_sound_effect(struct queue_node **queue_node) { // struct queue_node **queue_node - aktualny węzeł.
     if (queue_node != NULL && (*queue_node)->can_play_explosion_sound_effect) { // Sprawdzenie, czy istnieje aktualny węzeł oraz, czy można puścić dźwięk eksplozji.
         ma_sound_start(&sounds[1]); // Puszczenie dźwięku eksplozji.
@@ -389,8 +490,9 @@ void play_explosion_sound_effect(struct queue_node **queue_node) { // struct que
     }
 }
 
-// Funkcja explosion, która ma za zadanie narysować kule ognia eksplozji, oraz zmienić macierz map_data w taki sposób,
-// żeby wejście w eksplozje powodowało śmierć.
+/** Funkcja explosion, która ma za zadanie narysować kule ognia eksplozji, oraz zmienić macierz map_data w taki sposób,
+* żeby wejście w eksplozje powodowało śmierć.
+*/
 void explosion(struct queue_node *queue_bomb) { // struct queue_node *queue_bomb - aktualny węzeł
     entity_square(queue_bomb->bomb_x * 100, queue_bomb->bomb_y * 100, texture[11]); // Wywołanie funkcji, która narysuje środek kuli ognia.
     map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x] = 3; // Ustawienie pola na macierzy map_data, na eksplozję.
@@ -414,7 +516,9 @@ void explosion(struct queue_node *queue_bomb) { // struct queue_node *queue_bomb
     }
 }
 
-// Funkcja bomb_cleanup ma za zadanie wyczyścić macierz map_data z ekslozji.
+/**
+* Funkcja bomb_cleanup ma za zadanie wyczyścić macierz map_data z ekslozji.
+*/
 void bomb_cleanup(struct queue_node *queue_bomb) { // struct queue_node *queue_bomb - aktualny węzeł
     map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x] = 0; // Ustawienie środka eksplozji na puste pole.
     if (map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x + 1] != 1) { // Sprawdzenie, czy pole, które ma zostać wyczyszczone w macierzy map_data, nie jest ścianą.
@@ -431,8 +535,10 @@ void bomb_cleanup(struct queue_node *queue_bomb) { // struct queue_node *queue_b
     }
 }
 
-// Funkcja play_death_sound_effect puszcza dźwięk śmierci gracza, ale tylko raz.
-// Funkcja przyjmuje jako argument informacje o graczu.
+/**
+* Funkcja play_death_sound_effect puszcza dźwięk śmierci gracza, ale tylko raz.
+* Funkcja przyjmuje jako argument informacje o graczu.
+*/
 void play_death_sound_effect(struct character_info **character) { // struct character_info **character - informacje o graczu.
     if ((*character)->can_play_death_sound_effect) { // Sprawdzenie, czy można puścić dźwięk śmierci.
         ma_sound_start(&sounds[3]); // Puszczenie dźwięku śmierci.
@@ -440,8 +546,10 @@ void play_death_sound_effect(struct character_info **character) { // struct char
     }
 }
 
-// Funkcja death_detection ma za zadanie sprawdzić, czy gracz nie żyje.
-// Funkcja ta przyjmuje jako parametr informacje o graczu.
+/**
+* Funkcja death_detection ma za zadanie sprawdzić, czy gracz nie żyje.
+* Funkcja ta przyjmuje jako parametr informacje o graczu.
+*/
 void death_detection(struct character_info *character) { // struct character_info *character - informacje o graczu.
     int character_x = (int) truncf(character->x / 100); // Pozycja gracza na osi X na macierzy map_data.
     int character_y = (int) truncf(character->y / 100); // Pozycja gracza na osi Y na macierzy map_data.
@@ -452,8 +560,10 @@ void death_detection(struct character_info *character) { // struct character_inf
     }
 }
 
-// Funkcja yeet_bober przyjmuje jako parametr informacje dotyczące gracza. Funkcja ta sprawdzi, czy
-// gracz nie żyje i wyrzuci go poza mapę.
+/**
+* Funkcja yeet_bober przyjmuje jako parametr informacje dotyczące gracza. Funkcja ta sprawdzi, czy
+* gracz nie żyje i wyrzuci go poza mapę.
+*/
 void yeet_bober(struct character_info *character) { // struct character_info *character - informacej o graczu.
     if (character->died) { // Sprawdzenie, czy gracz nie żyje.
         character->x = 9999.0f; // Ustawienie pozycji gracza na osi X na 9999.0f (Pozycja poza mapą).
@@ -461,9 +571,11 @@ void yeet_bober(struct character_info *character) { // struct character_info *ch
     }
 }
 
-// Funkcja player_hitbox_detection, jako argumenty przyjmuje informacje o pierwszym graczu i o drugim graczu.
-// Funkcja ma za zadanie sprawdzać, czy gracze są w kolizji ze sobą i zwraca wartość true, jeżeli się kolidują
-// lub false, jeżeli się nie kolidują.
+/**
+* Funkcja player_hitbox_detection, jako argumenty przyjmuje informacje o pierwszym graczu i o drugim graczu.
+* Funkcja ma za zadanie sprawdzać, czy gracze są w kolizji ze sobą i zwraca wartość true, jeżeli się kolidują
+* lub false, jeżeli się nie kolidują.
+*/
 bool player_hitbox_detection(struct character_info *characterr1, struct character_info *characterr2) {
     // struct character_info *characterr1 - informację o pierwszym graczu.
     // struct character_info *characterr2 - informację o drugim graczu.
@@ -486,9 +598,11 @@ bool player_hitbox_detection(struct character_info *characterr1, struct characte
     return false; // Gracze się nie kolidują.
 }
 
-// Funkcja hitbox_detection ma za zadanie sprawdzić, czy gracz jest w kolizji ze ścianą.
-// Funkcja ta będzie brać pod uwagę tylko ściany wokół gracza. Funkcja przyjmuje jako argument
-// informacje o graczu i zwraca wartość true, jeżeli jest kolizja lub false, jeżeli takiej nie ma.
+/**
+* Funkcja hitbox_detection ma za zadanie sprawdzić, czy gracz jest w kolizji ze ścianą.
+* Funkcja ta będzie brać pod uwagę tylko ściany wokół gracza. Funkcja przyjmuje jako argument
+* informacje o graczu i zwraca wartość true, jeżeli jest kolizja lub false, jeżeli takiej nie ma.
+*/
 bool hitbox_detection(struct character_info *character) { // struct character_info *character - informacje o graczu
     bool x_collision = false; // Flaga czy jest kolizja z przeszkodą na osi X.
     bool y_collision = false; // Flaga czy jest kolizja z przeszkodą na osi Y.
@@ -521,7 +635,9 @@ bool hitbox_detection(struct character_info *character) { // struct character_in
     return false; // Nie ma kolizji z przeszkodą.
 }
 
-// Funkcja draw_map ma za zadanie narysowanie drzew na ekranie zgodnie z macierzą map_data.
+/**
+* Funkcja draw_map ma za zadanie narysowanie drzew na ekranie zgodnie z macierzą map_data.
+*/
 void draw_map() {
     for (int i = 0; i < 7; i++) { // Przejście przez macierz map_data.
         for (int j = 0; j < 11; j++) {
@@ -532,7 +648,9 @@ void draw_map() {
     }
 }
 
-// Funkcja draw_map ma za zadanie narysowanie skrzynek na ekranie zgodnie z macierzą map_data.
+/**
+* Funkcja draw_map ma za zadanie narysowanie skrzynek na ekranie zgodnie z macierzą map_data.
+*/
 void draw_crates() {
     for (int i = 0; i < 7; i++) {  // Przejście przez macierz map_data.
         for (int j = 0; j < 11; j++) {
@@ -543,9 +661,11 @@ void draw_crates() {
     }
 }
 
-// Funkcja update_movement ma za zadanie zaimplementować poruszanie się postaci oraz kolizje wraz ze ścianami i
-// drugim graczem. Przyjmowane argumenty to informacje o pierwszym i drugim graczu, z czego informacje drugiego
-// gracza nie są w żaden sposób modyfikowane i służą tylko do sprawdzania kolizji z drugim graczem.
+/**
+* Funkcja update_movement ma za zadanie zaimplementować poruszanie się postaci oraz kolizje wraz ze ścianami i
+* drugim graczem. Przyjmowane argumenty to informacje o pierwszym i drugim graczu, z czego informacje drugiego
+* gracza nie są w żaden sposób modyfikowane i służą tylko do sprawdzania kolizji z drugim graczem.
+*/
 void update_movement(struct character_info *characterr1, struct character_info *characterr2) {
     // struct character_info *characterr1 - informacje o pierwszym graczu.
     // struct character_info *characterr2 - informacje o drugim graczu.
@@ -583,10 +703,12 @@ void update_movement(struct character_info *characterr1, struct character_info *
     }
 }
 
-// Funkcja bombing służy do zajmowania się bombami. Funkcja ta będzie przechodzić przez kolejkę bomb
-// i zależnie od wartości tych bomb, będzie wykonywać odpowiednie akcje, którymi są: rysowanie bomb,
-// jeżeli nie minęła ok. 1 sekunda; eksplodować, jeżeli już minęła ta 1 sekunda; wyczyścić macierz
-// map_data z pozostałości po wybuchu bomby.
+/**
+* Funkcja bombing służy do zajmowania się bombami. Funkcja ta będzie przechodzić przez kolejkę bomb
+* i zależnie od wartości tych bomb, będzie wykonywać odpowiednie akcje, którymi są: rysowanie bomb,
+* jeżeli nie minęła ok. 1 sekunda; eksplodować, jeżeli już minęła ta 1 sekunda; wyczyścić macierz
+* map_data z pozostałości po wybuchu bomby.
+*/
 void bombing(struct queue_pointers *queue_bomb) { // struct queue_pointers *queue_bomb - wskaźniki na początek i koniec kolejki.
     struct queue_node *current = queue_bomb->head; // Ustawienie wskaźnika na aktualny węzeł na początek kolejki.
     struct queue_node *next = NULL;
@@ -609,15 +731,18 @@ void bombing(struct queue_pointers *queue_bomb) { // struct queue_pointers *queu
         if (current->bomb_timer + 3 + paused_time == time(NULL)) {  // Sprawdzenie, czy jest 3 sekunda + czas, w którym gra była zapauzowana.
             current->bomb_status = AFTERMATH; // Ustawienie statusu bomby aktualnego węzła na już eksplodowaną.
             bomb_cleanup(current); // Wywołanie funkcji, która wyczyści pozostałości po wybuchu bomby.
+            dequeue(&queue); // Wywołanie funkcji, która usunie ostatni węzeł.
             paused_time = 0; // Wyzerowanie zmiennej paused_time.
         }
         current = next; // Ustawienie aktualnego węzła kolejki na następny.
     }
 }
 
-// Funkcja game jest wykorzystywana do stworzenia faktycznej gry. Funkcja ta odpowiada za ustawienie tła, logikę za bombami,
-// kolizje graczy, narysowanie graczy, poruszanie się graczy, śmierci graczy, pauzowanie gry oraz radzenie sobie z
-// akcjami, które mają nastąpic po śmierci gracza.
+/**
+* Funkcja game jest wykorzystywana do stworzenia faktycznej gry. Funkcja ta odpowiada za ustawienie tła, logikę za bombami,
+* kolizje graczy, narysowanie graczy, poruszanie się graczy, śmierci graczy, pauzowanie gry oraz radzenie sobie z
+* akcjami, które mają nastąpic po śmierci gracza.
+*/
 void game() {
     entity_background(texture[16]); // Wywołanie funkcji, która narysuje tło.
     bombing(&queue); // Wywolanie funkcji, która odpowiada za logikę za bombami.
@@ -654,7 +779,9 @@ void game() {
     }
 }
 
-// Funkja main_menu ma za zadanie wywoływanie funkcji, które zostaną wykorzystane do narysowania menu głównego.
+/**
+* Funkja main_menu ma za zadanie wywoływanie funkcji, które zostaną wykorzystane do narysowania menu głównego.
+*/
 void main_menu() {
     entity_background(texture[15]); // Wywołanie funkcji, która narysuje tło ekranu i nałoży na nie teksturę.
     entity_button(550, 350, texture[0]); // Wywołanie funkcji, która narysuje przycisk PLAY ekranu i nałoży na niego odpowiednią teksturę.
@@ -662,7 +789,9 @@ void main_menu() {
     entity_button(550, 600, texture[2]); // Wywołanie funkcji, która narysuje przycisk EXIT ekranu i nałoży na niego odpowiednią teksturę.
 }
 
-// Funkja main_menu ma za zadanie wywoływanie funkcji, które zostaną wykorzystane do narysowania menu opcji.
+/**
+* Funkja main_menu ma za zadanie wywoływanie funkcji, które zostaną wykorzystane do narysowania menu opcji.
+*/
 void options() {
     entity_background(texture[15]); // Wywołanie funkcji, która narysuje tło ekranu i nałoży na nie teksturę.
     entity_button(550, 150, texture[3]); // Wywołanie funkcji, która narysuje przycisk MAPA1 ekranu i nałoży na niego odpowiednią teksturę.
@@ -671,8 +800,10 @@ void options() {
     entity_button(550, 550, texture[6]); // Wywołanie funkcji, która narysuje przycisk BACK ekranu i nałoży na niego odpowiednią teksturę.
 }
 
-// Funkcja display jest to nasza funkcja znajdująca się w pętli głównej, jest odpowiedzialna za praktycznie wszystkie akcje związane z wyświetlaniem i faktyczną grą.
-// Sama funkcja display ma za zadanie tylko wyczyścić ekran, przenieść nas do odpowiedniego menu i odświerzyć obraz.
+/**
+* Funkcja display jest to nasza funkcja znajdująca się w pętli głównej, jest odpowiedzialna za praktycznie wszystkie akcje związane z wyświetlaniem i faktyczną grą.
+* Sama funkcja display ma za zadanie tylko wyczyścić ekran, przenieść nas do odpowiedniego menu i odświerzyć obraz.
+*/
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Funkcja, która usuwa dane znajdujące się w buforach koloru i głębokości.
     switch (Menus) { // Switch, który przyjmuje jako warunek menu.
@@ -692,11 +823,12 @@ void display() {
     glutPostRedisplay(); // Wywołanie funkcji, która odświeża okno gry.
     glutSwapBuffers(); // Wywołanie funkcji, która podmienia bufory.
 }
-
-// Funkcja key_start_movement_character1 jest to funkcja zwrotna, która ma za zadanie zaimplementować poruszanie się postaci
-// przy pomocy klawiatury dla pierwszego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora.
-// Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze specialne jak np. INSERT.
-// Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji.
+/**
+* Funkcja key_start_movement_character1 jest to funkcja zwrotna, która ma za zadanie zaimplementować poruszanie się postaci
+* przy pomocy klawiatury dla pierwszego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora.
+* Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze specialne jak np. INSERT.
+* Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji.
+*/
 void key_start_movement_character1(int key, int miceX, int miceY) { // int key-klawisz, który został naciśnięty, int miceX-pozycja kursora na osi X, miceY-pozycja kursora na osi Y.
     if (Menus == GAME && !paused) { // Sprawdzenie, czy gra się rozgrywa oraz, czy gra nie jest zapauzowana.
         switch (key) { // Switch, który przyjmuje jako warunek klawisz.
@@ -722,10 +854,12 @@ void key_start_movement_character1(int key, int miceX, int miceY) { // int key-k
     }
 }
 
-// Funkcja key_stop_movement_character1 jest to funkcja zwrotna, która ma za zadanie zaimplementować zatrzymywanie się postaci
-// przy pomocy klawiatury dla pierwszego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora.
-// Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze specialne jak np. INSERT.
-// Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji.
+/**
+* Funkcja key_stop_movement_character1 jest to funkcja zwrotna, która ma za zadanie zaimplementować zatrzymywanie się postaci
+* przy pomocy klawiatury dla pierwszego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora.
+* Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze specialne jak np. INSERT.
+* Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji.
+*/
 void key_stop_movement_character1(int key, int miceX, int miceY) {
     if (!paused) { // Sprawdzenie, czy gra nie jest zapauzowana.
         switch (key) { // Switch, który przyjmuje jako warunek klawisz.
@@ -746,13 +880,14 @@ void key_stop_movement_character1(int key, int miceX, int miceY) {
         }
     }
 }
-
-// Funkcja key_start_movement_character2 jest to funkcja zwrotna, która ma za zadanie zaimplementować poruszanie się postaci
-// przy pomocy klawiatury dla drugiego gracza oraz stawianie bomb dla obydwu graczy, ponieważ dla pierwszego gracza nie ma takiego
-// klawisza specjalnego, które byłyby wygodny dla gracza poruszającego się na strzałkach, oraz pauzowania gry, ponieważ ESC nie jest.
-// znakiem specjalnym. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora.
-// Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze niespecjalne jak np. A.
-// Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wymagana do poprawnego działania funkcji.
+/**
+* Funkcja key_start_movement_character2 jest to funkcja zwrotna, która ma za zadanie zaimplementować poruszanie się postaci
+* przy pomocy klawiatury dla drugiego gracza oraz stawianie bomb dla obydwu graczy, ponieważ dla pierwszego gracza nie ma takiego
+* klawisza specjalnego, które byłyby wygodny dla gracza poruszającego się na strzałkach, oraz pauzowania gry, ponieważ ESC nie jest.
+* znakiem specjalnym. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora.
+* Funkcja ta jako klawisze, które zostały naciśnięte przyjmuje tylko klawisze niespecjalne jak np. A.
+* Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wymagana do poprawnego działania funkcji.
+*/
 void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
     if (Menus == GAME && !paused) { // Sprawdzenie, czy gra się rozgrywa oraz czy gra nie jest zapauzowana.
         switch (key) { // Switch, który przyjmuje jako warunek klawisz.
@@ -776,7 +911,7 @@ void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
                 if (map_data[(int) truncf(character2.y / 100)][(int) truncf(character2.x / 100)] == 0 && !character2.died) { // Sprawdzenie, czy miejsce, na którym znajduje się gracz drugi jest wolne, oraz z gracz drugi żyje
                     if (character1.ability_to_bomb || character2.ability_to_bomb) { // Sprawdzenie, czy chociaż jeden z graczy może stawiać bomby.
                         enqueue( // Funkcja dodająca bombę do kolejki.
-                                &queue, // Kolejka
+                                &queue, // Kolejka.
                                 truncf(character2.x / 100), // Pozycja gracza na osi X.
                                 truncf(character2.y / 100), // Pozycja gracza na osi Y.
                                 (int) truncf(character2.x / 100), // Pozycja gracza na osi X, ale zmieniona na integer.
@@ -790,7 +925,7 @@ void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
                 if (map_data[(int) truncf(character1.y / 100)][(int) truncf(character1.x / 100)] == 0 && !character1.died) { // Sprawdzenie, czy miejsce, na którym znajduje się gracz pierwszy jest wolne, oraz że gracz pierwszy żyje
                     if (character1.ability_to_bomb || character2.ability_to_bomb) { // Sprawdzenie, czy chociaż jeden z graczy może stawiać bomby.
                         enqueue(// Funkcja dodająca bombę do kolejki
-                                &queue, // Kolejka
+                                &queue, // Kolejka/
                                 truncf(character1.x / 100), // Pozycja gracza na osi X.
                                 truncf(character1.y / 100), // Pozycja gracza na osi Y.
                                 (int) truncf(character1.x / 100), // Pozycja gracza na osi X ale zmieniona na integer.
@@ -812,10 +947,12 @@ void key_start_movement_character2(unsigned char key, int miceX, int miceY) {
     }
 }
 
-// Funkcja key_stop_movement_character2 jest to funkcja zwrotna, która ma za zadanie zaimplementować zatrzymywanie się postaci
-// przy pomocy klawiatury dla drugiego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora.
-// Funkcja ta jako klawisze które zostały naciśnięte przyjmuje tylko klawisze niespecialne jak np. A.
-// Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji.
+/**
+* Funkcja key_stop_movement_character2 jest to funkcja zwrotna, która ma za zadanie zaimplementować zatrzymywanie się postaci
+* przy pomocy klawiatury dla drugiego gracza. Przyjmuje ona: klawisz, który został naciśnięty oraz pozycje kursora.
+* Funkcja ta jako klawisze które zostały naciśnięte przyjmuje tylko klawisze niespecialne jak np. A.
+* Pozycja kursora nigdzie nie jest wykorzystywana, ale jest wygamagana do poprawnego działania funkcji.
+*/
 void key_stop_movement_character2(unsigned char key, int miceX, int miceY) {
     if (!paused) { // Sprawdzenie, czy gra nie jest zapauzowana.
         switch (key) { // Switch, który przyjmuje jako warunek klawisz.
@@ -837,10 +974,12 @@ void key_stop_movement_character2(unsigned char key, int miceX, int miceY) {
     }
 }
 
-// Funkcja mouse jest to funkcja zwrotna, która ma za zadanie zaimplementować operacje na myszy.
-// Parametrami funkcji jest przycisk, który został naciśnięty, stan przycisku, oraz lokacja kursora,
-// dzięki nimi można zaimplementować przyciski, które są wykorzystywane w funkcji do poruszania się
-// pomiędzy menu lub wykonywania różnych akcji po naciśnięciu przycisku.
+/**
+* Funkcja mouse jest to funkcja zwrotna, która ma za zadanie zaimplementować operacje na myszy.
+* Parametrami funkcji jest przycisk, który został naciśnięty, stan przycisku, oraz lokacja kursora,
+* dzięki nimi można zaimplementować przyciski, które są wykorzystywane w funkcji do poruszania się
+* pomiędzy menu lub wykonywania różnych akcji po naciśnięciu przycisku.
+*/
 void mouse(int button, int state, int miceX, int miceY) { // button-przycisk który został naciśnięty, state-stan przycisku (naciśnięty lub puszczony), miceX - lokacja kursora na osi X, miceY - lokacja kursora na osi Y.
     if (button == GLUT_LEFT_BUTTON && Menus == MAIN_MANU && state == GLUT_DOWN) { // Sprawdzenie, czy został naciśnięty LPM, czy znajdujesz się w menu głównym oraz i czy przycisk został naciśnięty (bez stanu kliknięcie by było uznawane za dwa kliknięcia).
         if (miceX <= 950 && miceX >= 150 && miceY <= 400 && miceY >= 300) { // Sprawdzenie, czy kursor znajduje się na przycisku PLAY.
@@ -900,8 +1039,10 @@ void mouse(int button, int state, int miceX, int miceY) { // button-przycisk kt�
     }
 }
 
-// Funkcja texture_init której zadaniem jest wypełnić tablicę tekstur odpowiedznimi teksturami przy użyciu funkcji
-// loadTexture która ładuje teksturę z pliku .png.
+/**
+* Funkcja texture_init której zadaniem jest wypełnić tablicę tekstur odpowiedznimi teksturami przy użyciu funkcji
+* loadTexture która ładuje teksturę z pliku .png.
+*/
 void textures_init() {
     texture[0] = loadTexture("graphics/button_start_game.png"); // Tekstura: Przycisk rozpoczęcia gry.
     texture[1] = loadTexture("graphics/button_options.png"); // Tekstura: Przycisk przejścia do opcji.
@@ -923,8 +1064,9 @@ void textures_init() {
     texture[15] = loadTexture("graphics/background_main_menu.png"); // Tekstura: Tło menu głównego.
     texture[16] = loadTexture("graphics/background_game.png"); // Tekstura: Tło podczas gry.
 }
-
-// Funkcja character_init służy do ustawienia graczy w odpowiedznich pozycjach oraz ustawienia odpowiednich flag.
+/**
+* Funkcja character_init służy do ustawienia graczy w odpowiedznich pozycjach oraz ustawienia odpowiednich flag.
+*/
 void character_init() {
     character1.x = 950.0f; // Gracz pierwszy zostanie przeniesiony do miejsce 950.0 na ośi X.
     character1.y = 550.0f; // Gracz pierwszy zostanie przeniesiony do miejsce 550.0 na ośi Y (Teraz gracz pierwszy znajduje się w prawym dolnym rogu mapy).
@@ -936,8 +1078,10 @@ void character_init() {
     character2.can_play_death_sound_effect = true; // Ustawienie flagi "can_play_death_sound_effect" drugiego gracza na true;
 }
 
-// Funkcja init., inicjalizuje resztę funkcji, które są potrzebne do dalszego działania programu, w szczególności dotyczących ustawianiu
-// macierzy stanu, przestrzeni ortogonalnej. Włączaniu lub wyłączaniu "GL capabilities", dźwięków, i ustawianiu display lists.
+/**
+* Funkcja init., inicjalizuje resztę funkcji, które są potrzebne do dalszego działania programu, w szczególności dotyczących ustawianiu
+* macierzy stanu, przestrzeni ortogonalnej. Włączaniu lub wyłączaniu "GL capabilities", dźwięków, i ustawianiu display lists.
+*/
 void init() {
     glClearColor(0.0f, 0.0f, 0.0f, 0.0f); // Wyczyszczenie tła kolorem białym.
     glMatrixMode(GL_PROJECTION); // Ustawienie macierzy stanu na macierz projekcji.
@@ -963,9 +1107,11 @@ void init() {
     glEndList(); // Koniec Display List'a.
 }
 
-// Funkcja main ustawia generator liczb pseudolosowych, inicializuje GLUT-a i wszystkie funkcje potrzebne do
-// dalszego działania programu, tworzy okno, ustawia początkowe wartości dla postaci, ustawia głowną pętlę gry,
-// i będzie reagować na wejścia z klawiatury i myszy, po czym odinicjalizuje silnik dźwięków i tablicę dźwięków.
+/**
+* Funkcja main ustawia generator liczb pseudolosowych, inicializuje GLUT-a i wszystkie funkcje potrzebne do
+* dalszego działania programu, tworzy okno, ustawia początkowe wartości dla postaci, ustawia głowną pętlę gry,
+* i będzie reagować na wejścia z klawiatury i myszy, po czym odinicjalizuje silnik dźwięków i tablicę dźwięków.
+*/
 int main(int argc, char **argv) {
     srand(time(NULL)); // Inicjalizacja generatora liczb pseudolosowych.
 
