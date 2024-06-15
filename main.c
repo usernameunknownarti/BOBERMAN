@@ -380,9 +380,9 @@ bool dequeue(struct queue_pointers *queue_bomb) {
     return false;
 }
 
-// Funkcja play_1_effect puszcza dźwięk eksplozji bomby, ale tylko raz.
+// Funkcja play_explosion_sound_effect puszcza dźwięk eksplozji bomby, ale tylko raz.
 // Funkcja przyjmuje jako argument aktualny węzeł kolejki.
-void play_1_effect(struct queue_node **queue_node) { // struct queue_node **queue_node - aktualny węzeł.
+void play_explosion_sound_effect(struct queue_node **queue_node) { // struct queue_node **queue_node - aktualny węzeł.
     if (queue_node != NULL && (*queue_node)->can_play_explosion_sound_effect) { // Sprawdzenie, czy istnieje aktualny węzeł oraz, czy można puścić dźwięk eksplozji.
         ma_sound_start(&sounds[1]); // Puszczenie dźwięku eksplozji.
         (*queue_node)->can_play_explosion_sound_effect = false; // Zmiana flagi can_play_explosion_sound_effect na false, co nie pozwoli puścić dźwięku drugi raz.
@@ -394,7 +394,7 @@ void play_1_effect(struct queue_node **queue_node) { // struct queue_node **queu
 void explosion(struct queue_node *queue_bomb) { // struct queue_node *queue_bomb - aktualny węzeł
     entity_square(queue_bomb->bomb_x * 100, queue_bomb->bomb_y * 100, texture[11]); // Wywołanie funkcji, która narysuje środek kuli ognia.
     map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x] = 3; // Ustawienie pola na macierzy map_data, na eksplozję.
-    play_1_effect(&queue_bomb); // Wywołanie funkcji, która puszcza dźwięk eksplozji, ale tylko raz.
+    play_explosion_sound_effect(&queue_bomb); // Wywołanie funkcji, która puszcza dźwięk eksplozji, ale tylko raz.
 
     entity_square((queue_bomb->bomb_x + 1) * 100, queue_bomb->bomb_y * 100, texture[11]); // Wywołanie funkcji, która narysuje kulę ognia na prawo od środka i nada teksturę kuli ognia.
     if (map_data[queue_bomb->aftermath_y][queue_bomb->aftermath_x + 1] != 1) { // Sprawdzenie, czy pole, na którym znajduje się kula ognia w macierzy map_data, nie jest ścianą.
@@ -431,9 +431,9 @@ void bomb_cleanup(struct queue_node *queue_bomb) { // struct queue_node *queue_b
     }
 }
 
-// Funkcja play_3_effect puszcza dźwięk śmierci gracza, ale tylko raz.
+// Funkcja play_death_sound_effect puszcza dźwięk śmierci gracza, ale tylko raz.
 // Funkcja przyjmuje jako argument informacje o graczu.
-void play_3_effect(struct character_info **character) { // struct character_info **character - informacje o graczu.
+void play_death_sound_effect(struct character_info **character) { // struct character_info **character - informacje o graczu.
     if ((*character)->can_play_death_sound_effect) { // Sprawdzenie, czy można puścić dźwięk śmierci.
         ma_sound_start(&sounds[3]); // Puszczenie dźwięku śmierci.
         (*character)->can_play_death_sound_effect = false; // Zmiana flagi can_play_death_sound_effect na false, co nie pozwoli puścić dźwięku drugi raz.
@@ -446,7 +446,7 @@ void death_detection(struct character_info *character) { // struct character_inf
     int character_x = (int) truncf(character->x / 100); // Pozycja gracza na osi X na macierzy map_data.
     int character_y = (int) truncf(character->y / 100); // Pozycja gracza na osi Y na macierzy map_data.
     if (map_data[character_y][character_x] == 3 && !character->died) { // Sprawdzenie, czy pole, na którym się aktualnie znajduje gracz to kula ognia oraz czy postać jest martwa.
-        play_3_effect(&character); // Wywołanie funkcji, która puści dźwięk śmierci.
+        play_death_sound_effect(&character); // Wywołanie funkcji, która puści dźwięk śmierci.
         character->died = true; // Gracz umiera.
         score_timer = time(NULL) + 3; // Ustawienie zmiennej score_timer na aktualny czas + 3, tablica wyników będzie widoczna przez ok. 3 sekundy.
     }
